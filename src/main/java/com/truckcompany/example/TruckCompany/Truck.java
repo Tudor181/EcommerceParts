@@ -1,6 +1,7 @@
 package com.truckcompany.example.TruckCompany;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -26,12 +27,20 @@ public class Truck {
     private String releaseDate;
     private String trailerLink;
     private String poster;
-    private List<String> genres;
+    // private List<String> genres;
     private List<String> backdrops;
     // private String dateOfManufacture; //mine
     private String manufacturer; // mine
 
     @DocumentReference
     private List<Driver> driverIds; // mine
+
+    public Truck(String releaseDate, String manufacturer, Optional<String> title) {
+        this.releaseDate = releaseDate;
+        this.manufacturer = manufacturer;
+        if (title != null && title.isPresent()) {
+            this.title = title.get();
+        }
+    }
 
 }

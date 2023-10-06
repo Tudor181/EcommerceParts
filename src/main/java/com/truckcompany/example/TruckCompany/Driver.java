@@ -1,6 +1,5 @@
 package com.truckcompany.example.TruckCompany;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Driver {
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private int age;
 
