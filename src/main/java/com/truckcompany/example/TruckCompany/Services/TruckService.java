@@ -20,8 +20,17 @@ public class TruckService {
         return truckRepository.findAll();
     }
 
-    public Optional<Truck> truckById(ObjectId id) {
-        return truckRepository.findById(id);
+    public Optional<Truck> truckById(String id) {
+        try {
+            Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
+            if (truckFound != null) {
+                return truckFound;
+            }
+
+        } catch (RuntimeException e) {
+            return null;
+        }
+        return null;
     }
 
     public Optional<Truck> truckByImdbId(String imdbId) {

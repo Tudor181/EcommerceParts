@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import com.truckcompany.example.TruckCompany.Truck;
 
+// import io.swagger.v3.oas.annotations.Hidden;
+
+// @Hidden
 @Repository
 public interface ITruckRepository extends MongoRepository<Truck, ObjectId> {
     // framework will do this method automatically(u can do this with any property
