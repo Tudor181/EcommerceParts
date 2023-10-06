@@ -23,14 +23,15 @@ public class TruckService {
     public Optional<Truck> truckById(String id) {
         try {
             Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
-            if (truckFound != null) {
+            if (!truckFound.isEmpty()) {
                 return truckFound;
+            } else {
+                return null;
             }
 
         } catch (RuntimeException e) {
-            return null;
+            throw new RuntimeException("The truck was not found");
         }
-        return null;
     }
 
     public Optional<Truck> truckByImdbId(String imdbId) {

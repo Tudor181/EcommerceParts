@@ -42,11 +42,16 @@ public class TruckController {
     @Operation(summary = "Get truck by id")
     @GetMapping("/{id}")
     public ResponseEntity<Optional<Truck>> getTruckById(@PathVariable String id) {
-        Optional<Truck> truck = truckService.truckById(id);
-        if (truck != null) {
-            return new ResponseEntity<Optional<Truck>>(truck, HttpStatus.OK);
-        } else
+        try {
+            Optional<Truck> truck = truckService.truckById(id);
+            if (truck != null) {
+                return new ResponseEntity<Optional<Truck>>(truck, HttpStatus.OK);
+            } else
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     // better to not expose the ObjId
