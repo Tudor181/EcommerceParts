@@ -41,6 +41,7 @@ public class DriverController {
                                 HttpStatus.CREATED);
         }
 
+        //
         @Operation(summary = "Create a new driver and assign it to a truck")
         @ApiResponse(responseCode = "201", description = "Driver created", content = {
                         @Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class)) })

@@ -5,19 +5,22 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.truckcompany.example.TruckCompany.Truck;
+import com.truckcompany.example.TruckCompany.Requests.NewTruckRequest;
 import com.truckcompany.example.TruckCompany.Services.TruckService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -35,17 +38,21 @@ public class TruckController {
     @GetMapping
     public ResponseEntity<List<Truck>> getAllTrucks() {
         // return new ResponseEntity<String>("All trucks", HttpStatus.OK);
-        return new ResponseEntity<List<Truck>>(truckService.allTrucks(), HttpStatus.OK);
+        return new ResponseEntity<List<Truck>>(truckService.allTrucks(),
+                HttpStatus.OK);
     }
 
     // unsafe because of the expose of the obj id
     @Operation(summary = "Get truck by id")
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Truck>> getTruckById(@PathVariable String id) {
+    public ResponseEntity<Truck> getTruckById(@PathVariable String id) {
         try {
             Optional<Truck> truck = truckService.truckById(id);
             if (truck != null) {
-                return new ResponseEntity<Optional<Truck>>(truck, HttpStatus.OK);
+                // ResponseMeu raspuns = new ResponseMeu(truck.get().getId());
+                // return new ResponseEntity<>(raspuns, HttpStatus.OK);
+                return new ResponseEntity<>(truck.get(),
+                        HttpStatus.OK);
             } else
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (RuntimeException e) {
@@ -61,4 +68,14 @@ public class TruckController {
         return new ResponseEntity<Optional<Truck>>(truckService.truckByImdbId(imdbId),
                 HttpStatus.OK);
     }
+
+    @Operation(summary = "Create a new truck")
+    @ApiResponse(responseCode = "201", description = "Truck created", content = {
+            @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)) })
+    @PostMapping("/new/")
+    public ResponseEntity<Truck> createTruck(@RequestBody NewTruckRequest payload) {
+        Truck createdTruck = truckService.createTruck(payload.manufacturer, payload.title);
+        return new ResponseEntity<Truck>(createdTruck, HttpStatus.CREATED);
+    }
+
 }
