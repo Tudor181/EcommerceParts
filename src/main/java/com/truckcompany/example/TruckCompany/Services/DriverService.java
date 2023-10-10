@@ -1,5 +1,7 @@
 package com.truckcompany.example.TruckCompany.Services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,20 +21,24 @@ public class DriverService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    private void assignDriverToTruck(Driver driver, String imdbId) {
+    private void assignDriverToTruck(Driver driver, String truckId) {
         mongoTemplate.update(Truck.class)
-                .matching(Criteria.where("imdbId").is(imdbId))
+                .matching(Criteria.where("_id").is(truckId))
                 .apply(new Update().push("driverIds").value(driver))
                 .first();
     }
 
-    public Driver createDriver(String driverName, int driverAge, String imdbId) {
+    public Driver createDriver(String driverName, int driverAge, String truckId) {
         // insert returns the data u just pushed to the db
 
         Driver driver = driverRepository.insert(new Driver(driverName, driverAge));
 
-        assignDriverToTruck(driver, imdbId);
+        assignDriverToTruck(driver, truckId);
 
         return driver;
+    }
+
+    public List<Driver> allDrivers() {
+        return driverRepository.findAll();
     }
 }

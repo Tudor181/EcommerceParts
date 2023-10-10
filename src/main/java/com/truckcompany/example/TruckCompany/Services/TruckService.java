@@ -2,21 +2,15 @@ package com.truckcompany.example.TruckCompany.Services;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.convert.Jsr310Converters.DateToLocalTimeConverter;
 import org.springframework.stereotype.Service;
 
 import com.truckcompany.example.TruckCompany.Truck;
 import com.truckcompany.example.TruckCompany.Repositories.ITruckRepository;
-
-import lombok.val;
 
 @Service
 public class TruckService {
@@ -31,7 +25,7 @@ public class TruckService {
     public Optional<Truck> truckById(String id) {
         try {
             Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
-            List<String> driverIdsModified = new ArrayList<String>();
+            // List<String> driverIdsModified = new ArrayList<String>();
             if (!truckFound.isEmpty()) {
                 // truckFound.ifPresent(value -> {
                 // value.getDriverIds().forEach(driverId -> {
@@ -58,7 +52,9 @@ public class TruckService {
         return truckRepository.findTruckByImdbId(imdbId);
     }
 
-    public Truck createTruck(String manufacturer, Optional<String> title) {
+    public Truck createTruck(String imageId, String manufacturer, Optional<String> nrOfRegistration,
+            int manufactureYear) {
+
         // Truck truck = new Truck(id, "Default",
         // LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString(),
         // "undefined",
@@ -66,10 +62,21 @@ public class TruckService {
         // Collections.emptyList(), manufacturer, Collections.emptyList());
 
         Truck truckInserted = truckRepository
-                .insert(new Truck(
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString(),
-                        manufacturer, title));
+                .insert(new Truck(imageId, manufacturer, nrOfRegistration, manufactureYear,
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString()));
         return truckInserted;
+    }
+
+    public boolean deleteTruckById(String truckId) {
+        if (truckRepository.findById(new ObjectId(truckId)).isPresent()) {
+            try {
+                truckRepository.deleteById(new ObjectId(truckId));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
 }

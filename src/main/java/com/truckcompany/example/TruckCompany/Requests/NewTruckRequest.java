@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 public class NewTruckRequest {
     @NotNull
+    public String imageId;
     public String manufacturer;
-    public Optional<String> title;
+    public Optional<String> nrOfRegistration;
+    public int manufactureYear;
 }

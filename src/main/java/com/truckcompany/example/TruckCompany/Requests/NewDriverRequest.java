@@ -5,5 +5,5 @@ public class NewDriverRequest {
 
     public int driverAge;
 
-    public String imdbId;
+    public String truckId;
 }

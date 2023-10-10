@@ -1,5 +1,7 @@
 package com.truckcompany.example.TruckCompany;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,24 +25,27 @@ public class Truck {
     private String id;
     @NotBlank
     private String imdbId;
-    private String title;
-    private String releaseDate;
-    private String trailerLink;
-    private String poster;
-    // private List<String> genres;
-    private List<String> backdrops;
-    // private String dateOfManufacture; //mine
+    private String imageId;
     private String manufacturer; // mine
+    private String nrOfRegistration;
+    private int manufactureYear;
+    private String buyDate;
 
     @DocumentReference
     private List<Driver> driverIds; // mine
 
-    public Truck(String releaseDate, String manufacturer, Optional<String> title) {
-        this.releaseDate = releaseDate;
+    public Truck(String imageId, String manufacturer, Optional<String> nrOfRegistration, int manufactureYear,
+            String buyDate) {
+        this.imageId = imageId;
         this.manufacturer = manufacturer;
-        if (title != null && title.isPresent()) {
-            this.title = title.get();
+        this.manufactureYear = manufactureYear;
+        this.buyDate = buyDate;
+        if (nrOfRegistration != null && nrOfRegistration.isPresent()) {
+            this.nrOfRegistration = nrOfRegistration.get();
+        } else {
+            this.nrOfRegistration = "Not registered yet";
         }
+        this.driverIds = Collections.emptyList();
     }
 
 }

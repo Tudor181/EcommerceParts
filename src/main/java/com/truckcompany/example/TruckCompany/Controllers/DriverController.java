@@ -1,16 +1,20 @@
 package com.truckcompany.example.TruckCompany.Controllers;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.truckcompany.example.TruckCompany.Driver;
+import com.truckcompany.example.TruckCompany.Truck;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 import com.truckcompany.example.TruckCompany.Services.DriverService;
 
@@ -25,6 +29,13 @@ public class DriverController {
 
         @Autowired
         private DriverService driverService;
+
+        @ApiResponse(responseCode = "200", description = "Drivers found", content = {
+                        @Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class)) })
+        @GetMapping("/GetAllDrivers")
+        public ResponseEntity<List<Driver>> getAllDrivers() {
+                return new ResponseEntity<List<Driver>>(driverService.allDrivers(), HttpStatus.OK);
+        }
 
         @Deprecated
         @Operation(summary = "Create a new driver, use /new instead")
@@ -49,8 +60,9 @@ public class DriverController {
         public ResponseEntity<Driver> createNewDriver2(@RequestBody NewDriverRequest payload) {
                 Driver createdDriver = driverService.createDriver(payload.driverName,
                                 payload.driverAge,
-                                payload.imdbId);
+                                payload.truckId);
                 return new ResponseEntity<Driver>(createdDriver,
                                 HttpStatus.CREATED);
         }
+
 }
