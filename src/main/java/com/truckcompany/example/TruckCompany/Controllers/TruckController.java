@@ -30,6 +30,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Truck", description = "Find all the crud operations related to truck-controller here")
 public class TruckController {
 
+    private final static int MIN_MANUFACTURERYEAR = 1900;
+
     @Autowired
     private TruckService truckService;
 
@@ -76,6 +78,8 @@ public class TruckController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)) })
     @PostMapping("/new/")
     public ResponseEntity<Truck> createTruck(@RequestBody NewTruckRequest payload) {
+        if (payload.manufactureYear < MIN_MANUFACTURERYEAR || payload.manufacturer.length() < 2)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Truck createdTruck = truckService.createTruck(payload.imageId, payload.manufacturer, payload.nrOfRegistration,
                 payload.manufactureYear);
         return new ResponseEntity<Truck>(createdTruck, HttpStatus.CREATED);
