@@ -23,10 +23,15 @@ public class TruckService {
     }
 
     public Optional<Truck> truckById(String id) {
+
         try {
             Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
             // List<String> driverIdsModified = new ArrayList<String>();
+
             if (!truckFound.isEmpty()) {
+                System.out
+                        .println(
+                                "bTruck found to STRING :" + truckFound.toString() + "\nMax speed: " + Truck.MAX_SPEED);
                 // truckFound.ifPresent(value -> {
                 // value.getDriverIds().forEach(driverId -> {
                 // driverId.setId(driverId.getId().toString());
