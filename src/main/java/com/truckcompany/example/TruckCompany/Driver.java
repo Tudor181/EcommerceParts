@@ -18,8 +18,21 @@ public class Driver {
     private int age;
 
     public Driver(String name, int age) {
+        // this.name.append(name);
         this.name = name;
         this.age = age;
     }
+
+    @Override
+    public String toString() {
+        return "Driver: " + name + " age: " + age;
+    }
+
+    // public void setName(String newName) {
+    // if (name.length() > 0) {
+    // name.delete(0, name.length());
+    // }
+    // name.append(newName);
+    // }
 
 }
