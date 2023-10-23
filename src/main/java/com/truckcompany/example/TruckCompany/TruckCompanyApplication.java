@@ -10,9 +10,16 @@ public class TruckCompanyApplication {
 
 	public static void main(String[] args) {
 
-		MySwing mySwing = new MySwing();
-		mySwing.initialize();
+		// MySwing mySwing = new MySwing();
+		// mySwing.initialize();
+		System.setProperty("java.awt.headless", "false");
 		SpringApplication.run(TruckCompanyApplication.class, args);
+
+		javax.swing.SwingUtilities.invokeLater(() -> {
+			MySwing mySwing = new MySwing();
+			mySwing.initialize();
+
+		});
 
 	}
 }
