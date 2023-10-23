@@ -28,7 +28,7 @@ public class TruckService {
             Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
             // List<String> driverIdsModified = new ArrayList<String>();
 
-            if (!truckFound.isEmpty()) {
+            if (truckFound != null && !truckFound.isEmpty()) {
                 System.out
                         .println(
                                 "bTruck found to STRING :" + truckFound.toString() + "\nMax speed: " + Truck.MAX_SPEED);

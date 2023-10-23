@@ -48,7 +48,7 @@ public class DriverService {
         try {
             Optional<Driver> driverFound = driverRepository.findById(new ObjectId(id));
 
-            if (!driverFound.isEmpty()) {
+            if (driverFound != null && !driverFound.isEmpty()) {
                 System.out.println("Driver found to STRING :" + driverFound.toString());
                 return driverFound;
             } else {
@@ -67,7 +67,7 @@ public class DriverService {
                     .apply(new Update().set("name", newName))
                     .first();
             Optional<Driver> driverFound = this.driverById(id);
-            if (!driverFound.isEmpty()) {
+            if (driverFound != null && !driverFound.isEmpty()) {
                 // driverFound.get().setName(newName);
 
                 return driverFound.get();
