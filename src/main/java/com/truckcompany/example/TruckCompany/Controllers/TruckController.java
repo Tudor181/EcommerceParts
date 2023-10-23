@@ -78,7 +78,12 @@ public class TruckController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)) })
     @PostMapping("/new/")
     public ResponseEntity<Truck> createTruck(@RequestBody NewTruckRequest payload) {
-        if (payload.manufactureYear < MIN_MANUFACTURERYEAR || payload.manufacturer.length() < 2)
+        final String nrOfReg = payload.nrOfRegistration != null ? payload.nrOfRegistration.get() : "";
+        if (payload.manufactureYear < MIN_MANUFACTURERYEAR
+                || payload.manufacturer.length() < 2 || !(nrOfReg.length() == 7 || nrOfReg.length() == 0))
+            // || (payload.nrOfRegistration.isEmpty()
+            // || !payload.nrOfRegistration.isEmpty() &&
+            // payload.nrOfRegistration.get().length() == 7))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Truck createdTruck = truckService.createTruck(payload.imageId, payload.manufacturer, payload.nrOfRegistration,
                 payload.manufactureYear);
