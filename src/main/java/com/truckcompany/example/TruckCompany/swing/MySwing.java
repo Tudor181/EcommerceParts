@@ -249,27 +249,39 @@ public class MySwing extends JFrame {
                         String driverName = nameTextField.getText();
                         int driverAge = Integer.parseInt(ageTextField.getText());
                         Truck selectedTruck = (Truck) truckIdComboBox.getSelectedItem();
+                        if (driverAge < 18) {
+                            JOptionPane.showMessageDialog(null, "Invalid age", "Info",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
 
                         String requestUrl = "http://localhost:8080/api/v1.0/drivers/new/";
 
                         NewDriverRequest newDriver = new NewDriverRequest(driverName, driverAge, selectedTruck.getId());
 
-                        ResponseEntity<Driver> response = restTemplate.postForEntity(requestUrl, newDriver,
-                                Driver.class);
+                        try {
+                            ResponseEntity<Driver> response = restTemplate.postForEntity(requestUrl, newDriver,
+                                    Driver.class);
 
-                        if (response.getStatusCode().is2xxSuccessful()) {
+                            if (response.getStatusCode().is2xxSuccessful()) {
 
-                            System.out.println("Driver created successfully: " + response.getBody());
-                            JOptionPane.showMessageDialog(null, "Driver created succesfully", "Success",
-                                    JOptionPane.INFORMATION_MESSAGE);
+                                System.out.println("Driver created successfully: " + response.getBody());
+                                JOptionPane.showMessageDialog(null, "Driver created succesfully", "Success",
+                                        JOptionPane.INFORMATION_MESSAGE);
 
-                            createDriverFrame.dispose();
-                        } else {
-                            // Handle the error
-                            JOptionPane.showMessageDialog(null, "Failed to load trucks.", "Error",
+                                createDriverFrame.dispose();
+                            } else {
+
+                                JOptionPane.showMessageDialog(null, "Failed to create driver", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                                System.err.println(
+                                        "Error creating driver: " + response.getStatusCode() + " - "
+                                                + response.getBody());
+                            }
+                        } catch (Exception exception) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Failed to create driver" + "Status code" + exception.getMessage(), "Error",
                                     JOptionPane.ERROR_MESSAGE);
-                            System.err.println(
-                                    "Error creating driver: " + response.getStatusCode() + " - " + response.getBody());
                         }
 
                         createDriverFrame.dispose();
