@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -28,6 +29,7 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -200,9 +202,9 @@ public class MySwing extends JFrame {
                     if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
                         Driver[] drivers = response.getBody();
 
-                        JFrame allTruckFrame = new JFrame("All Drivers");
-                        allTruckFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        allTruckFrame.setLayout(new BorderLayout());
+                        JFrame allDriversFrame = new JFrame("All Drivers");
+                        allDriversFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        allDriversFrame.setLayout(new BorderLayout());
 
                         String[] columnNames = { "Name", "Age" };
                         Object[][] data = new Object[drivers.length][2];
@@ -215,9 +217,9 @@ public class MySwing extends JFrame {
                         JTable table = new JTable(data, columnNames);
                         JScrollPane scrollPane = new JScrollPane(table);
 
-                        allTruckFrame.add(scrollPane, BorderLayout.CENTER);
-                        allTruckFrame.setSize(600, 400);
-                        allTruckFrame.setVisible(true);
+                        allDriversFrame.add(scrollPane, BorderLayout.CENTER);
+                        allDriversFrame.setSize(600, 400);
+                        allDriversFrame.setVisible(true);
 
                     } else {
                         oneTruck.setText(
@@ -507,50 +509,43 @@ public class MySwing extends JFrame {
         panel.add(new JLabel(value));
     }
 
-    private void openPartsSearchFrame(Truck truck) {
-        JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
-        partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        partsSearchFrame.setSize(600, 400);
+    // private void openPartsSearchFrame(Truck truck) {
+    // JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
+    // partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    // partsSearchFrame.setSize(600, 400);
 
-        // Create and add components for parts search
-        JPanel searchPanel = new JPanel(new BorderLayout());
+    // JPanel filterPanel = new JPanel(new FlowLayout());
+    // JLabel filterLabel = new JLabel("Select a Category:");
+    // JComboBox<String> categoryComboBox = new JComboBox<>();
+    // categoryComboBox.addItem("Category 1");
+    // categoryComboBox.addItem("Category 2");
+    // categoryComboBox.addItem("Category 3");
+    // filterPanel.add(filterLabel);
+    // filterPanel.add(categoryComboBox);
 
-        // Create a panel for category filters
-        JPanel filterPanel = new JPanel(new FlowLayout());
-        JLabel filterLabel = new JLabel("Select a Category:");
-        JComboBox<String> categoryComboBox = new JComboBox<>();
-        categoryComboBox.addItem("Category 1");
-        categoryComboBox.addItem("Category 2");
-        categoryComboBox.addItem("Category 3");
-        filterPanel.add(filterLabel);
-        filterPanel.add(categoryComboBox);
+    // JTextArea resultsTextArea = new JTextArea(10, 40);
+    // resultsTextArea.setEditable(false);
+    // JScrollPane resultsScrollPane = new JScrollPane(resultsTextArea);
 
-        // Create a button to trigger the search
-        JButton searchButton = new JButton("Search Parts");
-        JTextArea resultsTextArea = new JTextArea(10, 40);
-        JScrollPane resultsScrollPane = new JScrollPane(resultsTextArea);
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedCategory = (String) categoryComboBox.getSelectedItem();
-                // Perform a search for parts related to the selected truck and category.
-                // Replace this with your logic to retrieve and display the parts.
-                String partsFound = performPartsSearch(truck, selectedCategory);
-                resultsTextArea.setText(partsFound);
-            }
-        });
+    // categoryComboBox.addActionListener(new ActionListener() {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // // Perform the parts search based on the selected category
+    // String selectedCategory = (String) categoryComboBox.getSelectedItem();
+    // resultsTextArea.setText(performPartsSearch(truck, selectedCategory));
 
-        // Add components to the search panel
-        searchPanel.add(filterPanel, BorderLayout.NORTH);
-        searchPanel.add(searchButton, BorderLayout.CENTER);
-        searchPanel.add(resultsScrollPane, BorderLayout.SOUTH);
+    // }
+    // });
 
-        // Add the search panel to the frame
-        partsSearchFrame.add(searchPanel);
+    // JPanel searchPanel = new JPanel(new FlowLayout());
+    // searchPanel.add(filterPanel);
+    // // searchPanel.add(new JPanel(), BorderLayout.CENTER);
+    // searchPanel.add(resultsScrollPane);
 
-        // Display the parts search frame
-        partsSearchFrame.setVisible(true);
-    }
+    // partsSearchFrame.add(searchPanel); // Add the searchPanel to the frame
+    // // Display the parts search frame
+    // partsSearchFrame.setVisible(true);
+    // }
 
     // Replace this method with your logic to search for parts based on the truck
     // and category.
@@ -564,6 +559,74 @@ public class MySwing extends JFrame {
         results.append("Part 2: Part Name 2\n");
         results.append("Part 3: Part Name 3\n");
         return results.toString();
+    }
+
+    private void openPartsSearchFrame(Truck truck) {
+        JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
+        partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        partsSearchFrame.setSize(600, 400);
+
+        JPanel filterPanel = new JPanel(new FlowLayout());
+        JLabel filterLabel = new JLabel("Select a Category:");
+        JComboBox<String> categoryComboBox = new JComboBox<>();
+        categoryComboBox.addItem("Category 1");
+        categoryComboBox.addItem("Category 2");
+        categoryComboBox.addItem("Category 3");
+        filterPanel.add(filterLabel);
+        filterPanel.add(categoryComboBox);
+
+        // Create a JTable to display parts
+        String[] columnNames = { "Part Name", "Price" };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        JTable partsTable = new JTable(model);
+        JScrollPane partsScrollPane = new JScrollPane(partsTable);
+
+        categoryComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Perform the parts search based on the selected category
+                String selectedCategory = (String) categoryComboBox.getSelectedItem();
+                updatePartsTable(truck, selectedCategory, model);
+            }
+        });
+
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(filterPanel, BorderLayout.NORTH);
+        searchPanel.add(partsScrollPane, BorderLayout.CENTER); // Add the partsTable to the center
+
+        partsSearchFrame.add(searchPanel); // Add the searchPanel to the frame
+        // Display the parts search frame
+        partsSearchFrame.setVisible(true);
+    }
+
+    // Update the JTable with parts based on the truck and category
+    private void updatePartsTable(Truck truck, String category, DefaultTableModel model) {
+        // Simulate parts retrieval based on truck and category.
+        // Replace this with your actual search logic.
+        Driver[] parts = getPartsForTruckAndCategory(truck, category);
+        if (parts != null) {
+            // Clear the existing table data
+            model.setRowCount(0);
+
+            // Populate the table with parts
+            for (Driver part : parts) {
+                model.addRow(new Object[] { part.getName(), part.getAge() });
+            }
+        }
+    }
+
+    // Simulate retrieving parts based on the selected truck and category
+    private Driver[] getPartsForTruckAndCategory(Truck truck, String category) {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Driver[]> response = restTemplate.getForEntity(
+                "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
+                Driver[].class);
+        if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
+            Driver[] drivers = response.getBody();
+            return drivers;
+        }
+        return null;
+
     }
 
 }
