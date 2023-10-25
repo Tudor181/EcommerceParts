@@ -10,18 +10,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +42,8 @@ import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 
 public class MySwing extends JFrame {
     private final Font mainFont = new Font("Arial Bold", Font.BOLD, 18);
+    private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
+    private JList<Truck> truckList = new JList<>(truckListModel);
     JTextField tfFirstName;
 
     public void initialize() {
@@ -51,6 +59,23 @@ public class MySwing extends JFrame {
         oneTruck.setHorizontalAlignment(SwingConstants.LEFT);
         tfFirstName = new JTextField();
         tfFirstName.setFont(mainFont);
+
+        JPanel truckListPanel = new JPanel(new BorderLayout());
+
+        // Create a title label
+        JLabel titleLabel = new JLabel("Truck List");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JScrollPane truckScrollPane = new JScrollPane(truckList);
+        int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
+        int scrollHeight = (int) (0.6 * (screenHeight - 120));
+        truckList.addListSelectionListener(new TruckSelectionListener());
+
+        truckListPanel.add(titleLabel, BorderLayout.NORTH);
+
+        truckListPanel.add(truckScrollPane, BorderLayout.CENTER);
+        // truckList.setVisible(false);
+        // truckScrollPane.setVisible(false);
 
         // JLabel lbWecome = new JLabel();
         // lbWecome.setFont(mainFont);
@@ -110,6 +135,17 @@ public class MySwing extends JFrame {
                             Truck[].class);
                     if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
                         Truck[] trucks = response.getBody();
+
+                        truckListModel.clear();
+                        for (Truck truck : trucks) {
+                            truckListModel.addElement(truck);
+                        }
+
+                        truckList.setCellRenderer(new TruckListCellRenderer());
+                        truckScrollPane.setPreferredSize(new Dimension(400, scrollHeight));
+                        truckList.setFixedCellHeight(40); // Adjust the row height as needed
+                        truckList.setOpaque(false);
+                        truckScrollPane.setOpaque(false);
 
                         JFrame allTruckFrame = new JFrame("All Trucks");
                         allTruckFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -376,7 +412,7 @@ public class MySwing extends JFrame {
         formPanel.setLayout(new GridLayout(3, 1, 5, 5));
         formPanel.add(lbSelectOptionsBelow);
         // formPanel.add(tfFirstName);
-        formPanel.add(oneTruck);
+
         formPanel.setOpaque(false);
 
         JPanel buttonsPanel = new JPanel();
@@ -388,6 +424,9 @@ public class MySwing extends JFrame {
         buttonsPanel.add(showAllDrivers);
         buttonsPanel.add(createNewDriver);
         buttonsPanel.add(changeDriverNameButton);
+        buttonsPanel.add(oneTruck);
+        // buttonsPanel.add(truckScrollPane); // Add the truck list
+        buttonsPanel.add(truckListPanel);
         buttonsPanel.setOpaque(false);
 
         JPanel mainPanel = new JPanel();
@@ -406,6 +445,125 @@ public class MySwing extends JFrame {
         setVisible(true);
         // mainPanel.add(lbFirstNime, BorderLayout.NORTH);
 
+    }
+
+    private class TruckSelectionListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                System.out.println("avem tir apasat");
+                Truck selectedTruck = truckList.getSelectedValue();
+
+                if (selectedTruck != null) {
+                    openTruckInfoDialog(selectedTruck);
+                }
+            }
+        }
+    }
+
+    private void openTruckInfoDialog(Truck truck) {
+        JDialog dialog = new JDialog(this, "Truck Information", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel infoPanel = new JPanel(new GridLayout(5, 2));
+
+        addInfoRow(infoPanel, "Manufacturer:", truck.getManufacturer());
+        addInfoRow(infoPanel, "Registration Number:", truck.getNrOfRegistration());
+        addInfoRow(infoPanel, "Year:", Integer.toString(truck.getManufactureYear()));
+
+        StringBuilder driversText = new StringBuilder();
+        for (Driver driver : truck.getDriverIds()) {
+            driversText.append(driver.getName()).append(", ");
+        }
+
+        addInfoRow(infoPanel, "Drivers:", driversText.toString());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton searchPartsButton = new JButton("Search Parts for this Truck");
+        searchPartsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openPartsSearchFrame(truck);
+                dialog.dispose();
+            }
+        });
+
+        buttonPanel.add(searchPartsButton);
+
+        // Add the searchPartsButton to the infoPanel
+        infoPanel.add(new JPanel());
+        infoPanel.add(buttonPanel);
+
+        // Add the infoPanel to the dialog's center
+        dialog.add(infoPanel, BorderLayout.CENTER);
+
+        dialog.setSize(400, 200);
+        dialog.setVisible(true);
+    }
+
+    private void addInfoRow(JPanel panel, String label, String value) {
+        panel.add(new JLabel(label));
+        panel.add(new JLabel(value));
+    }
+
+    private void openPartsSearchFrame(Truck truck) {
+        JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
+        partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        partsSearchFrame.setSize(600, 400);
+
+        // Create and add components for parts search
+        JPanel searchPanel = new JPanel(new BorderLayout());
+
+        // Create a panel for category filters
+        JPanel filterPanel = new JPanel(new FlowLayout());
+        JLabel filterLabel = new JLabel("Select a Category:");
+        JComboBox<String> categoryComboBox = new JComboBox<>();
+        categoryComboBox.addItem("Category 1");
+        categoryComboBox.addItem("Category 2");
+        categoryComboBox.addItem("Category 3");
+        filterPanel.add(filterLabel);
+        filterPanel.add(categoryComboBox);
+
+        // Create a button to trigger the search
+        JButton searchButton = new JButton("Search Parts");
+        JTextArea resultsTextArea = new JTextArea(10, 40);
+        JScrollPane resultsScrollPane = new JScrollPane(resultsTextArea);
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedCategory = (String) categoryComboBox.getSelectedItem();
+                // Perform a search for parts related to the selected truck and category.
+                // Replace this with your logic to retrieve and display the parts.
+                String partsFound = performPartsSearch(truck, selectedCategory);
+                resultsTextArea.setText(partsFound);
+            }
+        });
+
+        // Add components to the search panel
+        searchPanel.add(filterPanel, BorderLayout.NORTH);
+        searchPanel.add(searchButton, BorderLayout.CENTER);
+        searchPanel.add(resultsScrollPane, BorderLayout.SOUTH);
+
+        // Add the search panel to the frame
+        partsSearchFrame.add(searchPanel);
+
+        // Display the parts search frame
+        partsSearchFrame.setVisible(true);
+    }
+
+    // Replace this method with your logic to search for parts based on the truck
+    // and category.
+    private String performPartsSearch(Truck truck, String category) {
+        // Simulate a parts search and return the results.
+        // Replace this with your actual search logic.
+        StringBuilder results = new StringBuilder();
+        results.append("Parts found for Truck: ").append(truck.getManufacturer()).append("\n");
+        results.append("Category: ").append(category).append("\n");
+        results.append("Part 1: Part Name 1\n");
+        results.append("Part 2: Part Name 2\n");
+        results.append("Part 3: Part Name 3\n");
+        return results.toString();
     }
 
 }
