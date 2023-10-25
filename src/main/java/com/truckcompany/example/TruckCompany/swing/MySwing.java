@@ -29,8 +29,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.truckcompany.example.TruckCompany.Driver;
-import com.truckcompany.example.TruckCompany.Truck;
+import com.truckcompany.example.TruckCompany.Domain.Driver;
+import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Requests.ChangeDriverNameRequest;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 

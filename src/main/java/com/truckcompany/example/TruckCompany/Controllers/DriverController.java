@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.truckcompany.example.TruckCompany.Driver;
+import com.truckcompany.example.TruckCompany.Domain.Driver;
 import com.truckcompany.example.TruckCompany.Requests.ChangeDriverNameRequest;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 import com.truckcompany.example.TruckCompany.Services.DriverService;

@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import com.truckcompany.example.TruckCompany.Driver;
-import com.truckcompany.example.TruckCompany.Truck;
+import com.truckcompany.example.TruckCompany.Domain.Driver;
+import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Repositories.IDriverRepository;
 
 @Service

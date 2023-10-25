@@ -1,4 +1,4 @@
-package com.truckcompany.example.TruckCompany;
+package com.truckcompany.example.TruckCompany.Domain;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

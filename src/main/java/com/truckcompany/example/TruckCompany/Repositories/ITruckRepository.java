@@ -6,7 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.truckcompany.example.TruckCompany.Truck;
+import com.truckcompany.example.TruckCompany.Domain.Truck;
 
 // import io.swagger.v3.oas.annotations.Hidden;
 
