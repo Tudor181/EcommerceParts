@@ -20,7 +20,6 @@ public class TruckCompanyApplication {
 			mySwing.initialize();
 
 		});
-		//test
 
 	}
 }
