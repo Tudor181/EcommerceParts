@@ -526,48 +526,13 @@ public class MySwing extends JFrame {
 
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.add(filterPanel, BorderLayout.NORTH);
-        searchPanel.add(partsScrollPane, BorderLayout.CENTER);
+        // searchPanel.add(partsScrollPane, BorderLayout.CENTER);
 
         partsSearchFrame.add(searchPanel);
         partsSearchFrame.setVisible(true);
     }
 
     private Driver[] parts;
-
-    private void updatePartsTable(Truck truck, String category, DefaultTableModel model, JTable partsTable) {
-
-        parts = getPartsForTruckAndCategory(truck, category);
-
-        if (parts != null) {
-
-            model.setRowCount(0);
-            // Object[][] t;
-            // for (Driver part : parts) {
-            // model.addRow(new Object[] { part.getName(), part.getAge(), "Add" });
-
-            // }
-            // model.setDataVector(new Object[][] { { "button 1", "foo" },
-            // { "button 2", "bar" } }, new Object[] { "Button", "String" });
-            Object[][] t = new Object[parts.length][3]; // 3 columns for name, age, and button
-
-            for (int i = 0; i < parts.length; i++) {
-                t[i][0] = parts[i].getName();
-                t[i][1] = parts[i].getAge();
-                t[i][2] = "Add to Basket";
-            }
-
-            String[] columnNames = { "Part Name", "Price", "Action" };
-            model.setDataVector(t, columnNames);
-
-            partsTable.getColumn("Action").setCellRenderer(new ButtonRenderer());
-            partsTable.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
-
-            // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
-            // ButtonRenderer());
-            // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
-            // JCheckBox()));
-        }
-    }
 
     private Driver[] getPartsForTruckAndCategory(Truck truck, String category) {
         RestTemplate restTemplate = new RestTemplate();
@@ -584,6 +549,46 @@ public class MySwing extends JFrame {
         }
         return null;
 
+    }
+
+    private void updatePartsTable(Truck truck, String category, DefaultTableModel model, JTable partsTable) {
+
+        parts = getPartsForTruckAndCategory(truck, category);
+
+        if (parts != null) {
+            JFrame partsSearchFrame = new JFrame("Search Parts for Truck table");
+            partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            partsSearchFrame.setSize(600, 400);
+            model.setRowCount(0);
+            // Object[][] t;
+            // for (Driver part : parts) {
+            // model.addRow(new Object[] { part.getName(), part.getAge(), "Add" });
+
+            // }
+            // model.setDataVector(new Object[][] { { "button 1", "foo" },
+            // { "button 2", "bar" } }, new Object[] { "Button", "String" });
+            Object[][] t = new Object[parts.length][3]; // 3 columns for name, age, and button
+
+            for (int i = 0; i < parts.length; i++) {
+                t[i][0] = parts[i].getName();
+                t[i][1] = parts[i].getAge();
+                t[i][2] = "Add to Basket";
+            }
+            DefaultTableModel dm = new DefaultTableModel();
+            String[] columnNames = { "Part Name", "Price", "Action" };
+            dm.setDataVector(t, columnNames);
+            JTable partsTable2 = new JTable(dm);
+
+            partsTable2.getColumn("Action").setCellRenderer(new ButtonRenderer());
+            partsTable2.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
+
+            // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
+            // ButtonRenderer());
+            // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
+            // JCheckBox()));
+            partsSearchFrame.add(partsTable2);
+            partsSearchFrame.setVisible(true);
+        }
     }
 
     // class ButtonRenderer extends JButton implements TableCellRenderer {
@@ -650,10 +655,6 @@ public class MySwing extends JFrame {
         }
     }
 
-    /**
-     * @version 1.0 11/09/98
-     */
-
     class ButtonRenderer extends JButton implements TableCellRenderer {
 
         public ButtonRenderer() {
@@ -709,10 +710,7 @@ public class MySwing extends JFrame {
 
         public Object getCellEditorValue() {
             if (isPushed) {
-                //
-                //
                 JOptionPane.showMessageDialog(button, label + ": Ouch!");
-                // System.out.println(label + ": Ouch!");
             }
             isPushed = false;
             return new String(label);
