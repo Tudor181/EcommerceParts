@@ -2,26 +2,37 @@ package com.truckcompany.example.TruckCompany.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +47,9 @@ import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 
 public class MySwing extends JFrame {
     private final Font mainFont = new Font("Arial Bold", Font.BOLD, 18);
+    private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
+    private JList<Truck> truckList = new JList<>(truckListModel);
+    private ArrayList<Driver> basket = new ArrayList<>();
     JTextField tfFirstName;
 
     public void initialize() {
@@ -52,6 +66,23 @@ public class MySwing extends JFrame {
         tfFirstName = new JTextField();
         tfFirstName.setFont(mainFont);
 
+        JPanel truckListPanel = new JPanel(new BorderLayout());
+
+        // Create a title label
+        JLabel titleLabel = new JLabel("Truck List");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JScrollPane truckScrollPane = new JScrollPane(truckList);
+        int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
+        int scrollHeight = (int) (0.6 * (screenHeight - 120));
+        truckList.addListSelectionListener(new TruckSelectionListener());
+
+        truckListPanel.add(titleLabel, BorderLayout.NORTH);
+
+        truckListPanel.add(truckScrollPane, BorderLayout.CENTER);
+        // truckList.setVisible(false);
+        // truckScrollPane.setVisible(false);
+
         // JLabel lbWecome = new JLabel();
         // lbWecome.setFont(mainFont);
 
@@ -63,44 +94,6 @@ public class MySwing extends JFrame {
         showAllTrucks.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // String firstName = tfFirstName.getText();
-                // String lastName = tfLastName.getText();
-                // lbWecome.setText("Hello " + firstName);
-
-                // remove();
-                // Optional<Driver> driver = driverRepository.findById(new
-                // ObjectId("652412cfdab64f43f65c5fb9"));
-                // if (driver.isPresent()) {
-                // oneTruck.setText(driver.get().getName());
-                // }
-                // controller.getTruckById("652412cfdab64f43f65c5fb9");
-
-                // !!! for one truck!!!
-
-                // RestTemplate restTemplate = new RestTemplate();
-                // ResponseEntity<String> response = restTemplate.getForEntity(
-                // "http://localhost:8080/api/v1.0/trucks/65240838dab64f43f65c5f8c",
-                // String.class);
-
-                // String responseBody = response.getBody();
-                // System.out.println("aici" + responseBody);
-
-                // ObjectMapper objectMapper = new ObjectMapper();
-                // try {
-                // Truck truck = objectMapper.readValue(responseBody, Truck.class);
-
-                // System.out
-                // .println("Received Truck: " + truck.getManufacturer() + " " +
-                // truck.getNrOfRegistration());
-                // oneTruck.setText(truck.getManufacturer());
-                // JFrame allTruckFrame = new JFrame(truck.getManufacturer());
-                // allTruckFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                // allTruckFrame.setSize(400, 300);
-                // allTruckFrame.setVisible(true);
-                // } catch (Exception ex) {
-                // ex.printStackTrace();
-
-                // }
 
                 try {
 
@@ -110,6 +103,17 @@ public class MySwing extends JFrame {
                             Truck[].class);
                     if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
                         Truck[] trucks = response.getBody();
+
+                        truckListModel.clear();
+                        for (Truck truck : trucks) {
+                            truckListModel.addElement(truck);
+                        }
+
+                        truckList.setCellRenderer(new TruckListCellRenderer());
+                        truckScrollPane.setPreferredSize(new Dimension(400, scrollHeight));
+                        truckList.setFixedCellHeight(40); // Adjust the row height as needed
+                        truckList.setOpaque(false);
+                        truckScrollPane.setOpaque(false);
 
                         JFrame allTruckFrame = new JFrame("All Trucks");
                         allTruckFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -164,9 +168,9 @@ public class MySwing extends JFrame {
                     if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
                         Driver[] drivers = response.getBody();
 
-                        JFrame allTruckFrame = new JFrame("All Drivers");
-                        allTruckFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        allTruckFrame.setLayout(new BorderLayout());
+                        JFrame allDriversFrame = new JFrame("All Drivers");
+                        allDriversFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        allDriversFrame.setLayout(new BorderLayout());
 
                         String[] columnNames = { "Name", "Age" };
                         Object[][] data = new Object[drivers.length][2];
@@ -179,9 +183,9 @@ public class MySwing extends JFrame {
                         JTable table = new JTable(data, columnNames);
                         JScrollPane scrollPane = new JScrollPane(table);
 
-                        allTruckFrame.add(scrollPane, BorderLayout.CENTER);
-                        allTruckFrame.setSize(600, 400);
-                        allTruckFrame.setVisible(true);
+                        allDriversFrame.add(scrollPane, BorderLayout.CENTER);
+                        allDriversFrame.setSize(600, 400);
+                        allDriversFrame.setVisible(true);
 
                     } else {
                         oneTruck.setText(
@@ -224,10 +228,8 @@ public class MySwing extends JFrame {
                 if (responseT.getStatusCode() == HttpStatusCode.valueOf(200)) {
                     Truck[] trucks = responseT.getBody();
 
-                    // truckIdComboBox = new JComboBox<>(trucks);
                     for (Truck truck : trucks) {
 
-                        // truckIdComboBox.addItem(truck.getId() + " " + truck.getManufacturer());
                         truckIdComboBox.addItem(truck);
                     }
 
@@ -375,12 +377,11 @@ public class MySwing extends JFrame {
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(3, 1, 5, 5));
         formPanel.add(lbSelectOptionsBelow);
-        // formPanel.add(tfFirstName);
-        formPanel.add(oneTruck);
+
         formPanel.setOpaque(false);
 
         JPanel buttonsPanel = new JPanel();
-        // buttonsPanel.setLayout(new GridLayout(1, 2, 5, 5));
+
         BoxLayout flowLayout = new BoxLayout(buttonsPanel,
                 BoxLayout.Y_AXIS);
         buttonsPanel.setLayout(flowLayout);
@@ -388,13 +389,16 @@ public class MySwing extends JFrame {
         buttonsPanel.add(showAllDrivers);
         buttonsPanel.add(createNewDriver);
         buttonsPanel.add(changeDriverNameButton);
+        buttonsPanel.add(oneTruck);
+
+        buttonsPanel.add(truckListPanel);
         buttonsPanel.setOpaque(false);
 
         JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout()); // divide in north west center etc...
+        mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(new Color(128, 128, 255));
         mainPanel.add(formPanel, BorderLayout.NORTH);
-        // mainPanel.add(lbWecome, BorderLayout.CENTER);
+
         mainPanel.add(buttonsPanel, BorderLayout.CENTER);
 
         add(mainPanel);
@@ -404,8 +408,322 @@ public class MySwing extends JFrame {
         setMinimumSize(new Dimension(300, 400));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
-        // mainPanel.add(lbFirstNime, BorderLayout.NORTH);
 
+    }
+
+    private class TruckSelectionListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                Truck selectedTruck = truckList.getSelectedValue();
+
+                if (selectedTruck != null) {
+                    openTruckInfoDialog(selectedTruck);
+                }
+            }
+        }
+    }
+
+    private void openTruckInfoDialog(Truck truck) {
+        JDialog dialog = new JDialog(this, "Truck Information", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel infoPanel = new JPanel(new GridLayout(5, 2));
+
+        addInfoRow(infoPanel, "Manufacturer:", truck.getManufacturer());
+        addInfoRow(infoPanel, "Registration Number:", truck.getNrOfRegistration());
+        addInfoRow(infoPanel, "Year:", Integer.toString(truck.getManufactureYear()));
+
+        StringBuilder driversText = new StringBuilder();
+        for (Driver driver : truck.getDriverIds()) {
+            driversText.append(driver.getName()).append(", ");
+        }
+
+        addInfoRow(infoPanel, "Drivers:", driversText.toString());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton searchPartsButton = new JButton("Search Parts for this Truck");
+        searchPartsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openPartsSearchFrame(truck);
+                dialog.dispose();
+            }
+        });
+
+        buttonPanel.add(searchPartsButton);
+
+        infoPanel.add(new JPanel());
+        infoPanel.add(buttonPanel);
+
+        dialog.add(infoPanel, BorderLayout.CENTER);
+
+        dialog.setSize(400, 200);
+        dialog.setVisible(true);
+    }
+
+    private void addInfoRow(JPanel panel, String label, String value) {
+        panel.add(new JLabel(label));
+        panel.add(new JLabel(value));
+    }
+
+    private String performPartsSearch(Truck truck, String category) {
+        StringBuilder results = new StringBuilder();
+        results.append("Parts found for Truck: ").append(truck.getManufacturer()).append("\n");
+        results.append("Category: ").append(category).append("\n");
+        results.append("Part 1: Part Name 1\n");
+        results.append("Part 2: Part Name 2\n");
+        results.append("Part 3: Part Name 3\n");
+        return results.toString();
+    }
+
+    private void openPartsSearchFrame(Truck truck) {
+        JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
+        partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        partsSearchFrame.setSize(600, 400);
+
+        String[] columnNames = { "Part Name", "Price", "Action" };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // if (column != 2)
+                return false;
+                // return true;
+            }
+        };
+        DefaultTableModel dm = new DefaultTableModel();
+        dm.setDataVector(new Object[][] { { "button 1", "foo" },
+                { "button 2", "bar" } }, new Object[] { "Button", "String" });
+
+        JPanel filterPanel = new JPanel(new FlowLayout());
+
+        JLabel filterLabel = new JLabel("Select a Category:");
+        JComboBox<String> categoryComboBox = new JComboBox<>();
+        categoryComboBox.addItem("Category 1");
+        categoryComboBox.addItem("Category 2");
+        categoryComboBox.addItem("Category 3");
+
+        filterPanel.add(filterLabel);
+        filterPanel.add(categoryComboBox);
+
+        JTable partsTable = new JTable(model);
+        JScrollPane partsScrollPane = new JScrollPane(partsTable);
+        // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
+        // ButtonRenderer());
+        // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
+        // JCheckBox()));
+
+        categoryComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedCategory = (String) categoryComboBox.getSelectedItem();
+                updatePartsTable(truck, selectedCategory, model, partsTable);
+            }
+        });
+
+        updatePartsTable(truck, categoryComboBox.getItemAt(0), model, partsTable);
+
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(filterPanel, BorderLayout.NORTH);
+        // searchPanel.add(partsScrollPane, BorderLayout.CENTER);
+
+        partsSearchFrame.add(searchPanel);
+        partsSearchFrame.setVisible(true);
+    }
+
+    private Driver[] parts;
+
+    private Driver[] getPartsForTruckAndCategory(Truck truck, String category) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<Driver[]> response = restTemplate.getForEntity(
+                    "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
+                    Driver[].class);
+            if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
+                Driver[] drivers = response.getBody();
+                return drivers;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+
+    }
+
+    private void updatePartsTable(Truck truck, String category, DefaultTableModel model, JTable partsTable) {
+
+        parts = getPartsForTruckAndCategory(truck, category);
+
+        if (parts != null) {
+            JFrame partsSearchFrame = new JFrame("Search Parts for Truck table");
+            partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            partsSearchFrame.setSize(600, 400);
+            model.setRowCount(0);
+            // Object[][] t;
+            // for (Driver part : parts) {
+            // model.addRow(new Object[] { part.getName(), part.getAge(), "Add" });
+
+            // }
+            // model.setDataVector(new Object[][] { { "button 1", "foo" },
+            // { "button 2", "bar" } }, new Object[] { "Button", "String" });
+            Object[][] t = new Object[parts.length][3]; // 3 columns for name, age, and button
+
+            for (int i = 0; i < parts.length; i++) {
+                t[i][0] = parts[i].getName();
+                t[i][1] = parts[i].getAge();
+                t[i][2] = "Add to Basket";
+            }
+            DefaultTableModel dm = new DefaultTableModel();
+            String[] columnNames = { "Part Name", "Price", "Action" };
+            dm.setDataVector(t, columnNames);
+            JTable partsTable2 = new JTable(dm);
+
+            partsTable2.getColumn("Action").setCellRenderer(new ButtonRenderer());
+            partsTable2.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
+
+            // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
+            // ButtonRenderer());
+            // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
+            // JCheckBox()));
+            partsSearchFrame.add(partsTable2);
+            partsSearchFrame.setVisible(true);
+        }
+    }
+
+    // class ButtonRenderer extends JButton implements TableCellRenderer {
+    // public ButtonRenderer() {
+    // setOpaque(true);
+    // }
+
+    // @Override
+    // public Component getTableCellRendererComponent(JTable table, Object value,
+    // boolean isSelected, boolean hasFocus,
+    // int row, int column) {
+    // setText("Add to Basketa");
+    // return this;
+    // }
+    // }
+
+    // class ButtonEditor extends DefaultCellEditor {
+    // private JButton button;
+    // private String label;
+    // private boolean isPushed;
+    // private int selectedRow;
+
+    // public ButtonEditor(JTextField textField, JTable partsTable) {
+    // super(textField);
+    // button = new JButton();
+    // button.setOpaque(true);
+    // button.addActionListener(new ActionListener() {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // System.out.println("S-a apasat butonul ..");
+    // isPushed = true;
+    // selectedRow = partsTable.getSelectedRow();
+    // }
+    // });
+    // }
+
+    // @Override
+    // public Component getTableCellEditorComponent(JTable table, Object value,
+    // boolean isSelected, int row,
+    // int column) {
+    // System.out.println("getEditor");
+    // if (isPushed) {
+    // System.out.println("S A APASAT");
+    // addToBasket(selectedRow);
+    // isPushed = false;
+    // }
+    // label = (value == null) ? "" : value.toString();
+    // button.setText(label);
+    // return button;
+    // }
+
+    // @Override
+    // public Object getCellEditorValue() {
+    // return label;
+    // }
+    // }
+
+    private void addToBasket(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < parts.length) {
+            Driver selectedPart = parts[rowIndex];
+            basket.add(selectedPart);
+            System.out.println("se adauga in cos" + selectedPart);
+            JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "' to the basket.");
+        }
+    }
+
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            if (isSelected) {
+                setForeground(table.getSelectionForeground());
+                setBackground(table.getSelectionBackground());
+            } else {
+                setForeground(table.getForeground());
+                setBackground(UIManager.getColor("Button.background"));
+            }
+            setText((value == null) ? "" : value.toString());
+            return this;
+        }
+    }
+
+    class ButtonEditor extends DefaultCellEditor {
+        protected JButton button;
+
+        private String label;
+
+        private boolean isPushed;
+
+        public ButtonEditor(JCheckBox checkBox) {
+            super(checkBox);
+            button = new JButton();
+            button.setOpaque(true);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    fireEditingStopped();
+                }
+            });
+        }
+
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            if (isSelected) {
+                button.setForeground(table.getSelectionForeground());
+                button.setBackground(table.getSelectionBackground());
+            } else {
+                button.setForeground(table.getForeground());
+                button.setBackground(table.getBackground());
+            }
+            label = (value == null) ? "" : value.toString();
+            button.setText(label);
+            isPushed = true;
+            return button;
+        }
+
+        public Object getCellEditorValue() {
+            if (isPushed) {
+                JOptionPane.showMessageDialog(button, label + ": Ouch!");
+            }
+            isPushed = false;
+            return new String(label);
+        }
+
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+
+        protected void fireEditingStopped() {
+            super.fireEditingStopped();
+        }
     }
 
 }
