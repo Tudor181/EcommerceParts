@@ -76,11 +76,10 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> getAll() {
-        try{
-             List<User> users = userService.getAll();
-             return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-        catch(IllegalArgumentException ex){
+        try {
+            List<User> users = userService.getAll();
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (IllegalArgumentException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
