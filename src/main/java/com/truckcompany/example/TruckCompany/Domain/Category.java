@@ -3,7 +3,14 @@ package com.truckcompany.example.TruckCompany.Domain;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Document(collection = "categories")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Category {
     private String name;
     @Id
@@ -13,16 +20,14 @@ public class Category {
         this.name = name;
     }
 
-    public void setId(String Id)
-    {
-        this.id=Id;
+    public void setId(String Id) {
+        this.id = Id;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return this.id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -42,5 +47,5 @@ public class Category {
         Category category = (Category) obj;
         return this.name.equals(category.getName()) && this.id.equals(category.getId());
     }
-    
+
 }
