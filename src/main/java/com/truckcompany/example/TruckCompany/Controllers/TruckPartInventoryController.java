@@ -76,8 +76,13 @@ public class TruckPartInventoryController {
 
     @GetMapping
     public ResponseEntity<List<TruckPartInventory>> getAll() {
-        List<TruckPartInventory> truckPartInventories = truckPartInventoryService.getAll();
-        return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
+        try{
+             List<TruckPartInventory> truckPartInventories = truckPartInventoryService.getAll();
+             return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
+        }
+        catch(IllegalArgumentException ex){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/category/{categoryId}/truck/{truckId}")
