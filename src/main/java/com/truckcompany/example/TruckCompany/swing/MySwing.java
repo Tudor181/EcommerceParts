@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
@@ -40,8 +39,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.truckcompany.example.TruckCompany.Domain.Category;
 import com.truckcompany.example.TruckCompany.Domain.Driver;
 import com.truckcompany.example.TruckCompany.Domain.Truck;
+import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
 import com.truckcompany.example.TruckCompany.Requests.ChangeDriverNameRequest;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 
@@ -49,7 +50,7 @@ public class MySwing extends JFrame {
     private final Font mainFont = new Font("Arial Bold", Font.BOLD, 18);
     private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
     private JList<Truck> truckList = new JList<>(truckListModel);
-    private ArrayList<Driver> basket = new ArrayList<>();
+    private ArrayList<TruckPartInventory> basket = new ArrayList<>();
     JTextField tfFirstName;
 
     public void initialize() {
@@ -468,14 +469,22 @@ public class MySwing extends JFrame {
         panel.add(new JLabel(value));
     }
 
-    private String performPartsSearch(Truck truck, String category) {
-        StringBuilder results = new StringBuilder();
-        results.append("Parts found for Truck: ").append(truck.getManufacturer()).append("\n");
-        results.append("Category: ").append(category).append("\n");
-        results.append("Part 1: Part Name 1\n");
-        results.append("Part 2: Part Name 2\n");
-        results.append("Part 3: Part Name 3\n");
-        return results.toString();
+    private Category[] getCategories() {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<Category[]> response = restTemplate.getForEntity(
+                    "http://localhost:8080/categories",
+                    Category[].class);
+            if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
+                Category[] categories = response.getBody();
+                return categories;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+
     }
 
     private void openPartsSearchFrame(Truck truck) {
@@ -483,67 +492,67 @@ public class MySwing extends JFrame {
         partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         partsSearchFrame.setSize(600, 400);
 
-        String[] columnNames = { "Part Name", "Price", "Action" };
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // if (column != 2)
-                return false;
-                // return true;
-            }
-        };
-        DefaultTableModel dm = new DefaultTableModel();
-        dm.setDataVector(new Object[][] { { "button 1", "foo" },
-                { "button 2", "bar" } }, new Object[] { "Button", "String" });
-
         JPanel filterPanel = new JPanel(new FlowLayout());
 
         JLabel filterLabel = new JLabel("Select a Category:");
-        JComboBox<String> categoryComboBox = new JComboBox<>();
-        categoryComboBox.addItem("Category 1");
-        categoryComboBox.addItem("Category 2");
-        categoryComboBox.addItem("Category 3");
 
-        filterPanel.add(filterLabel);
-        filterPanel.add(categoryComboBox);
+        Category[] categories = getCategories();
 
-        JTable partsTable = new JTable(model);
-        JScrollPane partsScrollPane = new JScrollPane(partsTable);
-        // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
-        // ButtonRenderer());
-        // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
-        // JCheckBox()));
+        if (categories != null) {
 
-        categoryComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedCategory = (String) categoryComboBox.getSelectedItem();
-                updatePartsTable(truck, selectedCategory, model, partsTable);
+            JComboBox<Category> categoryComboBox = new JComboBox<>();
+            for (Category category : categories) {
+                categoryComboBox.addItem(category);
             }
-        });
 
-        updatePartsTable(truck, categoryComboBox.getItemAt(0), model, partsTable);
+            filterPanel.add(filterLabel);
+            filterPanel.add(categoryComboBox);
 
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(filterPanel, BorderLayout.NORTH);
-        // searchPanel.add(partsScrollPane, BorderLayout.CENTER);
+            categoryComboBox.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Category selectedCategory = (Category) categoryComboBox.getSelectedItem();
+                    updatePartsTable(truck, selectedCategory);
+                }
+            });
 
-        partsSearchFrame.add(searchPanel);
-        partsSearchFrame.setVisible(true);
+            updatePartsTable(truck, categoryComboBox.getItemAt(0));
+
+            JPanel searchPanel = new JPanel(new BorderLayout());
+            searchPanel.add(filterPanel, BorderLayout.NORTH);
+
+            partsSearchFrame.add(searchPanel);
+            partsSearchFrame.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "There was an unexpected error getting the categories", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    private Driver[] parts;
+    private TruckPartInventory[] parts;
 
-    private Driver[] getPartsForTruckAndCategory(Truck truck, String category) {
+    private TruckPartInventory[] getPartsForTruckAndCategory(Truck truck, Category category) {
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<Driver[]> response = restTemplate.getForEntity(
-                    "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
-                    Driver[].class);
-            if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
-                Driver[] drivers = response.getBody();
-                return drivers;
+            // ResponseEntity<Driver[]> response = restTemplate.getForEntity(
+            // "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
+            // Driver[].class);
+            // "http://localhost:8080/truckpartinventory/category/" + category.getId() +
+            // "/truck/" + truck.getId(),
+            ResponseEntity<TruckPartInventory[]> response2 = restTemplate.getForEntity(
+                    "http://localhost:8080/truckpartinventory/category/" + category.getId()
+                            + "/truck/" + truck.getId(),
+                    TruckPartInventory[].class);
+
+            if (response2.getStatusCode() == HttpStatusCode.valueOf(200)) {
+                TruckPartInventory[] parts = response2.getBody();
+                if (parts != null && parts.length > 0) {
+                    return parts;
+                } else
+                    return null;
+
             }
+
         } catch (Exception e) {
             return null;
         }
@@ -551,7 +560,7 @@ public class MySwing extends JFrame {
 
     }
 
-    private void updatePartsTable(Truck truck, String category, DefaultTableModel model, JTable partsTable) {
+    private void updatePartsTable(Truck truck, Category category) {
 
         parts = getPartsForTruckAndCategory(truck, category);
 
@@ -559,98 +568,35 @@ public class MySwing extends JFrame {
             JFrame partsSearchFrame = new JFrame("Search Parts for Truck table");
             partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             partsSearchFrame.setSize(600, 400);
-            model.setRowCount(0);
-            // Object[][] t;
-            // for (Driver part : parts) {
-            // model.addRow(new Object[] { part.getName(), part.getAge(), "Add" });
 
-            // }
-            // model.setDataVector(new Object[][] { { "button 1", "foo" },
-            // { "button 2", "bar" } }, new Object[] { "Button", "String" });
-            Object[][] t = new Object[parts.length][3]; // 3 columns for name, age, and button
+            Object[][] t = new Object[parts.length][3];
 
             for (int i = 0; i < parts.length; i++) {
                 t[i][0] = parts[i].getName();
-                t[i][1] = parts[i].getAge();
+                t[i][1] = parts[i].getAmount();
                 t[i][2] = "Add to Basket";
             }
             DefaultTableModel dm = new DefaultTableModel();
-            String[] columnNames = { "Part Name", "Price", "Action" };
+            String[] columnNames = { "Part Name", "Amount in stock", "Action" };
             dm.setDataVector(t, columnNames);
-            JTable partsTable2 = new JTable(dm);
+            JTable partsTable = new JTable(dm);
 
-            partsTable2.getColumn("Action").setCellRenderer(new ButtonRenderer());
-            partsTable2.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
+            partsTable.getColumn("Action").setCellRenderer(new ButtonRenderer());
+            partsTable.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
 
-            // partsTable.getColumnModel().getColumn(2).setCellRenderer(new
-            // ButtonRenderer());
-            // partsTable.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(new
-            // JCheckBox()));
-            partsSearchFrame.add(partsTable2);
+            partsSearchFrame.add(partsTable);
             partsSearchFrame.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "There was an unexpected error getting the parts", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // class ButtonRenderer extends JButton implements TableCellRenderer {
-    // public ButtonRenderer() {
-    // setOpaque(true);
-    // }
-
-    // @Override
-    // public Component getTableCellRendererComponent(JTable table, Object value,
-    // boolean isSelected, boolean hasFocus,
-    // int row, int column) {
-    // setText("Add to Basketa");
-    // return this;
-    // }
-    // }
-
-    // class ButtonEditor extends DefaultCellEditor {
-    // private JButton button;
-    // private String label;
-    // private boolean isPushed;
-    // private int selectedRow;
-
-    // public ButtonEditor(JTextField textField, JTable partsTable) {
-    // super(textField);
-    // button = new JButton();
-    // button.setOpaque(true);
-    // button.addActionListener(new ActionListener() {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // System.out.println("S-a apasat butonul ..");
-    // isPushed = true;
-    // selectedRow = partsTable.getSelectedRow();
-    // }
-    // });
-    // }
-
-    // @Override
-    // public Component getTableCellEditorComponent(JTable table, Object value,
-    // boolean isSelected, int row,
-    // int column) {
-    // System.out.println("getEditor");
-    // if (isPushed) {
-    // System.out.println("S A APASAT");
-    // addToBasket(selectedRow);
-    // isPushed = false;
-    // }
-    // label = (value == null) ? "" : value.toString();
-    // button.setText(label);
-    // return button;
-    // }
-
-    // @Override
-    // public Object getCellEditorValue() {
-    // return label;
-    // }
-    // }
-
     private void addToBasket(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < parts.length) {
-            Driver selectedPart = parts[rowIndex];
+            TruckPartInventory selectedPart = parts[rowIndex];
             basket.add(selectedPart);
-            System.out.println("se adauga in cos" + selectedPart);
+            // System.out.println("se adauga in cos" + selectedPart);
             JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "' to the basket.");
         }
     }
@@ -681,6 +627,7 @@ public class MySwing extends JFrame {
         private String label;
 
         private boolean isPushed;
+        private int clickedRow;
 
         public ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
@@ -705,12 +652,14 @@ public class MySwing extends JFrame {
             label = (value == null) ? "" : value.toString();
             button.setText(label);
             isPushed = true;
+            clickedRow = row;
             return button;
         }
 
         public Object getCellEditorValue() {
             if (isPushed) {
-                JOptionPane.showMessageDialog(button, label + ": Ouch!");
+                // JOptionPane.showMessageDialog(button, label + ": Ouch!");
+                addToBasket(clickedRow);
             }
             isPushed = false;
             return new String(label);
