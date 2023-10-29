@@ -5,7 +5,7 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import com.truckcompany.example.TruckCompany.Truck;
+import com.truckcompany.example.TruckCompany.Domain.Truck;
 
 public class TruckListCellRenderer extends DefaultListCellRenderer {
     @Override
