@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Data;
+
 @Document(collection = "truckpartinventory")
+@Data
 public class TruckPartInventory {
     private List<String> truckId;
     private String id;
@@ -26,9 +29,11 @@ public class TruckPartInventory {
     public void setName(String name) {
         this.name = name;
     }
+
     public String getName() {
         return name;
     }
+
     public List<String> getTruckId() {
         return truckId;
     }
@@ -60,7 +65,7 @@ public class TruckPartInventory {
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
