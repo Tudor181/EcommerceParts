@@ -27,16 +27,30 @@ public class CategoryService implements ICategoryService{
         return optionalCategory.orElse(null);
     }
 
-    public void insert(Category category) {
-        categoryRepository.save(category);
+    public Boolean insert(Category category) {
+        if(category.getName().length() < 1)
+            return false;
+        return categoryRepository.save(category).getId().length()>1;
     }
 
-    public void update(Category category) {
+    public Boolean update(Category category) {
+        if(category.getName().length() < 1)
+            return false;
+        Category categoryToUpdate = this.categoryRepository.findById(new ObjectId(category.getId())).orElse(null);
+        if(categoryToUpdate == null)
+            return false;
+
+        categoryToUpdate.setName(category.getName());
         categoryRepository.save(category);
+        return categoryToUpdate.equals(category);
     }
 
-    public void delete(String id) {
+    public Boolean delete(String id) {
+        Category category = this.categoryRepository.findById(new ObjectId(id)).orElse(null);
+        if(category == null)
+            return false;
         categoryRepository.deleteById(new ObjectId(id));
+        return true;
     }
 
     public List<Category> getAll() {

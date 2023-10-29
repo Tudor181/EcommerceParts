@@ -1,5 +1,6 @@
 package com.truckcompany.example.TruckCompany.Repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
@@ -16,4 +17,6 @@ public interface ITruckRepository extends MongoRepository<Truck, ObjectId> {
     // framework will do this method automatically(u can do this with any property
     // (field) as long as they are unique)
     Optional<Truck> findTruckByImdbId(String imdbId);
+
+    List<Truck> findByIdIn(List<String> Id);
 }
