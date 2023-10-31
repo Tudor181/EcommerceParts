@@ -1,5 +1,11 @@
 package com.truckcompany.example.TruckCompany.Domain;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Data;
+
+@Document(collection = "users")
+@Data
 public class User {
     private String name;
     private String email;

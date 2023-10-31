@@ -1,5 +1,6 @@
 package com.truckcompany.example.TruckCompany.Controllers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -7,16 +8,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.truckcompany.example.TruckCompany.DataAbstraction.IUserCartService;
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserService;
 import com.truckcompany.example.TruckCompany.Domain.User;
+import com.truckcompany.example.TruckCompany.Domain.UserCart;
+
+import java.util.Date;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.truckcompany.example.TruckCompany.Domain.User;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     private final IUserService userService;
+    private final IUserCartService userCartService;
 
-    public UserController(IUserService userService) {
+    public UserController(IUserService userService, IUserCartService userCartService) {
         this.userService = userService;
+        this.userCartService = userCartService;
     }
 
     @GetMapping("/{id}")
@@ -33,7 +46,7 @@ public class UserController {
         }
     }
 
-    @PostMapping
+    @PostMapping("register/")
     public ResponseEntity<Void> insert(@RequestBody User user) {
         try {
             userService.insert(user);
@@ -59,6 +72,25 @@ public class UserController {
         }
     }
 
+      @GetMapping("/login/{id}")
+    public ResponseEntity<String> generateToken( @PathVariable String id) {
+        User user = userService.get(id);
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("secret");
+            String token = JWT.create()
+                    .withIssuer("auth0")
+                    .withClaim("userId", user.getId())
+                    .withClaim("username", user.getEmail())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000)) // 1 hour
+                    .sign(algorithm);
+            return ResponseEntity.ok(token);
+        } catch (JWTCreationException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         try {
@@ -83,4 +115,20 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+   @PostMapping("/AddToCart/{userId}/{itemId}")
+    public ResponseEntity<Boolean> addToCart(@PathVariable String userId, @PathVariable String itemId) {
+        try {
+            UserCart userCart = this.userCartService.addItemToUserCart(userId, itemId);
+            if (userCart == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }

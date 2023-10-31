@@ -13,9 +13,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Category {
     private String name;
+
+    private String userId;
+
     @Id
     private String id;
 
+
+    public void setUserId(String id) {
+        this.id = id;
+    }
+
+    public String getUserId()
+    {
+        return this.userId;
+    }
     public Category(String name) {
         this.name = name;
     }
