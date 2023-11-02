@@ -3,6 +3,7 @@ package com.truckcompany.example.TruckCompany;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.truckcompany.example.TruckCompany.swing.AuthFrame;
 import com.truckcompany.example.TruckCompany.swing.MySwing;
 
 @SpringBootApplication // annotation -> let the compiler knows what this class is doing
@@ -16,7 +17,7 @@ public class TruckCompanyApplication {
 		SpringApplication.run(TruckCompanyApplication.class, args);
 
 		javax.swing.SwingUtilities.invokeLater(() -> {
-			MySwing mySwing = new MySwing();
+			AuthFrame mySwing = new AuthFrame();
 			mySwing.initialize();
 
 		});
