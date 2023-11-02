@@ -9,22 +9,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.truckcompany.example.TruckCompany.Domain.User;
 
-import io.swagger.v3.oas.models.media.MediaType;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.IOException;
-import java.net.http.HttpHeaders;
 
-// import org.apache.http.HttpEntity;
-// import org.apache.http.HttpResponse;
-// import org.apache.http.client.methods.HttpPost;
-// import org.apache.http.impl.client.CloseableHttpClient;
-// import org.apache.http.impl.client.HttpClients;
-// import org.apache.http.util.EntityUtils;
 
 public class RegisterForm extends JFrame {
     public void initialize() {
