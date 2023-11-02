@@ -74,9 +74,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/login/{id}")
-    public ResponseEntity<String> generateToken(@PathVariable String id) {
-        User user = userService.get(id);
+    @GetMapping("/login")
+    public ResponseEntity<String> generateToken(String UserEmail, String UserPassword) {
+        User user = userService.getByEmail(UserEmail,UserPassword);
         if (user == null) {
             return ResponseEntity.badRequest().build();
         }
