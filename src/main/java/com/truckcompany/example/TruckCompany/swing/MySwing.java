@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
@@ -384,7 +386,6 @@ public class MySwing extends JFrame {
             }
         });
 
-        // Create "Show Cart" button
         JButton showCartButton = new JButton("Show Cart");
         showCartButton.setFont(mainFont);
         showCartButton.setPreferredSize(new Dimension(200, 20));
@@ -394,11 +395,9 @@ public class MySwing extends JFrame {
         showCartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showCartFrame(cartListModel);
+                showCartFrame(cartListModel, "6543c379f8e0cb3f68a16f20");
             }
         });
-
-        // Add "Show Cart" button to your buttonsPanel
 
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(3, 1, 5, 5));
@@ -451,7 +450,32 @@ public class MySwing extends JFrame {
         }
     }
 
-    private void showCartFrame(DefaultListModel<TruckPartInventory> cartListModel) {
+    private void showCartFrame(DefaultListModel<TruckPartInventory> cartListModel, String userId) {
+        try {
+            String apiUrl = "http://localhost:8080/user/GetCart/" + userId;
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<TruckPartInventory[]> responseEntity = restTemplate.getForEntity(apiUrl,
+                    TruckPartInventory[].class);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                TruckPartInventory[] userCart = responseEntity.getBody();
+
+                cartListModel.clear();
+                for (TruckPartInventory item : userCart) {
+                    // Assuming TruckPartInventory has getName() and getPrice() methods
+                    cartListModel.addElement(item.getName() + " - $" + item.getPrice());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "There was an unexpected error getting the cart", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (HttpStatusCodeException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "HTTP Error: " + ex.getRawStatusCode(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
         JFrame cartFrame = new JFrame("Shopping Cart");
         cartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         cartFrame.setSize(400, 400);
@@ -464,7 +488,9 @@ public class MySwing extends JFrame {
 
         cartPanel.add(cartLabel, BorderLayout.NORTH);
 
-        JScrollPane cartScrollPane = new JScrollPane(cartList);
+        // Use a JList with the updated cartListModel that contains names and prices
+        JList<String> nameAndPriceList = new JList<>(cartListModel);
+        JScrollPane cartScrollPane = new JScrollPane(nameAndPriceList);
         cartPanel.add(cartScrollPane, BorderLayout.CENTER);
 
         JButton checkoutButton = new JButton("Checkout");
@@ -474,7 +500,7 @@ public class MySwing extends JFrame {
         checkoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                // Implement the checkout functionality here
             }
         });
 
@@ -706,10 +732,6 @@ public class MySwing extends JFrame {
                 JOptionPane.showMessageDialog(this, "REST Client Error: " + e.getMessage(), "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
-
-            // System.out.println("se adauga in cos" + selectedPart);
-            // JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "'
-            // to the basket.");
         }
     }
 
