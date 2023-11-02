@@ -71,3 +71,19 @@ public class CategoryController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 }
+/**
+ * CategoryController is a REST controller that handles HTTP requests related to Category entities.
+ * It uses the ICategoryService to perform operations on the Category entities.
+ * 
+ * The class has the following methods:
+ * 
+ * - get(String id): Retrieves a Category by its id. Returns 404 if the Category is not found, 400 if the id is not a valid ObjectId, and 200 along with the Category if it is found.
+ * 
+ * - insert(CategoryPost request): Inserts a new Category. The request body should contain the details of the Category to be inserted. Returns 201 if the insertion is successful, and 400 if the request is not valid.
+ * 
+ * - update(Category category): Updates an existing Category. The request body should contain the Category to be updated, including its id. Returns 204 if the update is successful, and 400 if the request is not valid.
+ * 
+ * - delete(String id): Deletes a Category by its id. Returns 204 if the deletion is successful, and 400 if the id is not a valid ObjectId.
+ * 
+ * - getAll(): Retrieves all Categories. Returns 200 along with the list of Categories.
+ */

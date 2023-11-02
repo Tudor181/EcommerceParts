@@ -72,4 +72,9 @@ public class UserService implements IUserService {
         return this.userService.findAll();
     }
 
+    @Override
+    public User getByEmail(String email, String password) {
+        return this.userService.findByEmailAndPassword(email, password);
+    }
+
 }

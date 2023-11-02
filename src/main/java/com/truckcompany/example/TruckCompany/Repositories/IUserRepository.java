@@ -8,4 +8,6 @@ import com.truckcompany.example.TruckCompany.Domain.User;
 
 @Repository
 public interface IUserRepository extends MongoRepository<User, ObjectId> {
+    public User findByEmail(String email);
+    public User findByEmailAndPassword(String email, String password);
 }
