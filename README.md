@@ -10,7 +10,7 @@ EcomerceParts relies on the following technologies and libraries:
 - **Database:** MongoDB
 - **Backend Framework:** Java Spring Framework
 - **User Interface:** Java Swing
-- **Mobile Integration:** React Native [Link to Repository](https://github.com/yourusername/your-repository](https://github.com/Tudor181/TruckCompanyMobile)
+- **Mobile Integration:** React Native [Link to Repository]https://github.com/yourusername/your-repository](https://github.com/Tudor181/TruckCompanyMobile
 - **API Doumentation:** Swagger
 
 ## Features
