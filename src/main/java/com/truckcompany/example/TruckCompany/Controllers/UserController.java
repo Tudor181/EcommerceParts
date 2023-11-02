@@ -49,6 +49,7 @@ public class UserController {
     @PostMapping("register/")
     public ResponseEntity<Void> insert(@RequestBody User user) {
         try {
+            System.out.println(user.toString());
             userService.insert(user);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IllegalArgumentException ex) {
@@ -72,8 +73,8 @@ public class UserController {
         }
     }
 
-      @GetMapping("/login/{id}")
-    public ResponseEntity<String> generateToken( @PathVariable String id) {
+    @GetMapping("/login/{id}")
+    public ResponseEntity<String> generateToken(@PathVariable String id) {
         User user = userService.get(id);
         if (user == null) {
             return ResponseEntity.badRequest().build();
@@ -91,6 +92,7 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         try {
@@ -116,7 +118,7 @@ public class UserController {
         }
     }
 
-   @PostMapping("/AddToCart/{userId}/{itemId}")
+    @PostMapping("/AddToCart/{userId}/{itemId}")
     public ResponseEntity<Boolean> addToCart(@PathVariable String userId, @PathVariable String itemId) {
         try {
             UserCart userCart = this.userCartService.addItemToUserCart(userId, itemId);
@@ -130,5 +132,5 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }
