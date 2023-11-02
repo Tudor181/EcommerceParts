@@ -113,5 +113,32 @@ public class UserCartService implements IUserCartService{
     }
    
 
-    
 }
+
+/**
+ * UserCartService is a service class that provides methods for managing user carts.
+ * It implements the IUserCartService interface.
+ * 
+ * The class has the following fields:
+ * 
+ * - userCartRepository: The repository for accessing the UserCart data.
+ * - truckpartService: The service for accessing the TruckPartInventory data.
+ * 
+ * The class has the following methods:
+ * 
+ * - UserCartService(IUserCartRepository userCartRepository, ITruckPartInventoryService truckpartService): Constructor that initializes the userCartRepository and truckpartService fields.
+ * 
+ * - addItemToUserCart(String userId, String itemId): Adds an item to a user's cart. If the user does not have a cart, it creates one and adds the item to it. If the user already has a cart, it just adds the item to it. If the item does not exist, it returns null.
+ * 
+ * - getCartByUserId(String id): Returns all the items in a user's cart. If the user does not have a cart, it returns null.
+ * 
+ * - insert(UserCart item): Inserts a new UserCart. If the UserCart is null or its ID is null or empty, it throws an IllegalArgumentException. Otherwise, it inserts the UserCart and returns true.
+ * 
+ * - update(UserCart item): Updates an existing UserCart. If the UserCart is null or its ID is null or empty, or if no UserCart with the given ID exists, it throws an IllegalArgumentException. Otherwise, it updates the UserCart and returns true.
+ * 
+ * - delete(String id): Deletes the UserCart with the given ID. If the ID is null or empty, or if no UserCart with the given ID exists, it throws an IllegalArgumentException. Otherwise, it deletes the UserCart and returns true.
+ * 
+ * - getAll(): Returns a list of all UserCarts.
+ * 
+ * - get(String id): This method is not implemented yet. It is supposed to get a UserCart from the repository by its id.
+ */

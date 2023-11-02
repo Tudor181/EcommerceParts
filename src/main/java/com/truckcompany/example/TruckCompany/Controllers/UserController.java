@@ -147,3 +147,26 @@ public class UserController {
     }
 
 }
+
+/**
+ * UserController is a REST controller that handles HTTP requests related to User entities.
+ * It uses the IUserService and IUserCartService to perform operations on the User entities and their carts.
+ * 
+ * The class has the following methods:
+ * 
+ * - get(String id): Retrieves a User by its id. Returns 404 if the User is not found, 400 if the id is not a valid ObjectId, and 200 along with the User if it is found.
+ * 
+ * - insert(User user): Inserts a new User. The request body should contain the details of the User to be inserted. Returns 201 if the insertion is successful, and throws a MyException if the User is null.
+ * 
+ * - update(String id, User user): Updates an existing User. The request body should contain the User to be updated, including its id. Returns 204 if the update is successful, and throws a MyException if the User is null or not found.
+ * 
+ * - delete(String id): Deletes a User by its id. Returns 204 if the deletion is successful, and throws a MyException if the User is not found.
+ * 
+ * - getAll(): Retrieves all Users. Returns 200 along with the list of Users.
+ * 
+ * - generateToken(String UserEmail, String UserPassword): Generates a JWT token for a User. Returns the token if the generation is successful, and 400 if the User is not found or the token generation fails.
+ * 
+ * - addToCart(String userId, String itemId): Adds an item to a User's cart. Returns 200 if the addition is successful, and 400 or 500 if it fails.
+ * 
+ * - getCart(String userId): Retrieves a User's cart. Returns 200 along with the cart if the retrieval is successful, and 400 or 500 if it fails.
+ */

@@ -91,3 +91,30 @@ public List<TruckPartInventory> GetTruckPartInventoryByTruckPartId(String catego
     return truckPartInventoryRepository.findByCategoryIdAndTruckIdIn(categoryId, truckIds);
 }
 }
+
+/**
+ * TruckPartInventoryService is a service class that provides methods for managing truck part inventories.
+ * It implements the ITruckPartInventoryService interface.
+ * 
+ * The class has the following fields:
+ * 
+ * - truckPartInventoryRepository: The repository for accessing the TruckPartInventory data.
+ * - categoryRepository: The repository for accessing the Category data.
+ * - truckRepository: The repository for accessing the Truck data.
+ * 
+ * The class has the following methods:
+ * 
+ * - TruckPartInventoryService(ITruckPartinventoryRepository truckPartInventoryRepository, ICategoryRepository categoryRepository, ITruckRepository truckRepository): Constructor that initializes the truckPartInventoryRepository, categoryRepository, and truckRepository fields.
+ * 
+ * - get(String id): Returns the TruckPartInventory with the given ID. If no such TruckPartInventory exists, it returns null.
+ * 
+ * - insert(TruckPartInventory item): Inserts a new TruckPartInventory. If the Category of the TruckPartInventory does not exist, or if the number of Trucks does not match the number of Truck IDs in the TruckPartInventory, or if the name of the TruckPartInventory is less than 1 character long, it returns false. Otherwise, it returns true if the TruckPartInventory was inserted successfully.
+ * 
+ * - update(TruckPartInventory item): Updates an existing TruckPartInventory. If the Category of the TruckPartInventory does not exist, or if the number of Trucks does not match the number of Truck IDs in the TruckPartInventory, or if the name of the TruckPartInventory is less than 1 character long, or if no TruckPartInventory with the given ID exists, it returns false. Otherwise, it updates the TruckPartInventory and returns true if the update was successful.
+ * 
+ * - delete(String id): Deletes the TruckPartInventory with the given ID. If no TruckPartInventory with the given ID exists, it returns false. Otherwise, it deletes the TruckPartInventory and returns true.
+ * 
+ * - getAll(): Returns a list of all TruckPartInventories.
+ * 
+ * - GetTruckPartInventoryByTruckPartId(String categoryId, String truckId): Returns a list of TruckPartInventories that have the given Category ID and Truck ID.
+ */
