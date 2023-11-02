@@ -64,7 +64,7 @@ public class UserCartService implements IUserCartService{
         for (String truckPartId : truckPartIds) {
             TruckPartInventory truckPart = truckpartService.get(truckPartId);
             if (truckPart == null) {
-                return null;
+                continue;
             }
             inventory.add(truckPart);
         }
