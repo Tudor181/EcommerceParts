@@ -120,25 +120,19 @@ public class RegisterForm extends JFrame {
 
     private void registerUser(User user) {
         try {
-            // Create a RestTemplate
-            // RestTemplate restTemplate = new RestTemplate();
+
             RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
 
             String registerEndpoint = "http://localhost:8080/user/register/";
 
-            // Create an HttpEntity with the user object and headers
             HttpEntity<User> request = new HttpEntity<>(user);
 
-            // Make the HTTP POST request and get the response
             ResponseEntity<Void> response = restTemplate.postForEntity(registerEndpoint, request, Void.class);
 
-            // Check the response status code and handle accordingly
+            // Check the response status code and handle it
             if (response.getStatusCode().is2xxSuccessful()) {
                 JOptionPane.showMessageDialog(this, "Registration successful! Now please log in.", "Success",
                         JOptionPane.INFORMATION_MESSAGE);
-                response.getBody();
-                // MySwing mySwing = new MySwing();
-                // mySwing.initialize();
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Registration failed!", "Error", JOptionPane.ERROR_MESSAGE);
