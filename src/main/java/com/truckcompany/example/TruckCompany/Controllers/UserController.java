@@ -172,9 +172,6 @@ public class UserController {
     public ResponseEntity<List<TruckPartInventory>> getCart(@PathVariable String userId) {
         try {
             List<TruckPartInventory> userCart = this.userCartService.getCartByUserId(userId);
-            if (userCart == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
             return new ResponseEntity<>(userCart, HttpStatus.OK);
         } catch (MyException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
