@@ -58,7 +58,7 @@ public class MySwing extends JFrame {
     private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
     private JList<Truck> truckList = new JList<>(truckListModel);
     private ArrayList<TruckPartInventory> basket = new ArrayList<>();
-    private JList<TruckPartInventory> cartList = new JList<>();
+    private JList<String> cartList = new JList<>();
 
     JTextField tfFirstName;
 
@@ -389,7 +389,7 @@ public class MySwing extends JFrame {
         JButton showCartButton = new JButton("Show Cart");
         showCartButton.setFont(mainFont);
         showCartButton.setPreferredSize(new Dimension(200, 20));
-        DefaultListModel<TruckPartInventory> cartListModel = new DefaultListModel<>();
+        DefaultListModel<String> cartListModel = new DefaultListModel<>();
         cartList = new JList<>(cartListModel);
 
         showCartButton.addActionListener(new ActionListener() {
@@ -450,7 +450,7 @@ public class MySwing extends JFrame {
         }
     }
 
-    private void showCartFrame(DefaultListModel<TruckPartInventory> cartListModel, String userId) {
+    private void showCartFrame(DefaultListModel<String> cartListModel, String userId) {
         try {
             String apiUrl = "http://localhost:8080/user/GetCart/" + userId;
 
