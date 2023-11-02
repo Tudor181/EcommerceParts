@@ -1,6 +1,5 @@
 package com.truckcompany.example.TruckCompany.Controllers;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -20,9 +19,6 @@ import java.util.Date;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.truckcompany.example.TruckCompany.Domain.User;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
 
 @RestController
 @RequestMapping("/user")
@@ -41,47 +37,76 @@ public class UserController {
             ObjectId objectId = new ObjectId(id);
             User user = userService.get(objectId.toHexString());
             if (user == null) {
-                throw new MyException("User not found", "USER_NOT_FOUND");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (MyException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException ex) {
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PostMapping("register/")
+    public ResponseEntity<Void> insert(@RequestBody User user) {
+        try {
+            if (user == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            userService.insert(user);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @DeleteMapping("DeleteCart/{userId}")
+    public ResponseEntity<Boolean> deleteUserCart(@PathVariable String userId) {
+        try {
+            boolean response = this.userCartService.deleteUserCart(userId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("register/")
-    public ResponseEntity<Void> insert(@RequestBody User user) throws MyException {
-        if (user == null) {
-            throw new MyException("User is null", "USER_IS_NULL");
-        }
-        userService.insert(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody User user) throws MyException {
-        if (user == null) {
-            throw new MyException("User is null", "USER_IS_NULL");
+    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody User user) {
+
+        try {
+            if (user == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            ObjectId objectId = new ObjectId(id);
+            User existingUser = userService.get(objectId.toHexString());
+            if (existingUser == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            user.setId(objectId.toHexString());
+            userService.update(user);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        ObjectId objectId = new ObjectId(id);
-        User existingUser = userService.get(objectId.toHexString());
-        if (existingUser == null) {
-            throw new MyException("User not found", "USER_NOT_FOUND");
-        }
-        user.setId(objectId.toHexString());
-        userService.update(user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> generateToken(@RequestBody UserLoginRequest request) {
-        User user = userService.getByEmail(request.getUserEmail(), request.getUserPassword());
-        if (user == null) {
-            return ResponseEntity.badRequest().build();
-        }
         try {
+            User user = userService.getByEmail(request.getUserEmail(), request.getUserPassword());
+            if (user == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Algorithm algorithm = Algorithm.HMAC256("secret");
             String token = JWT.create()
                     .withIssuer("auth0")
@@ -90,20 +115,30 @@ public class UserController {
                     .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000)) // 1 hour
                     .sign(algorithm);
             return ResponseEntity.ok(token);
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (JWTCreationException e) {
             return ResponseEntity.internalServerError().build();
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) throws MyException {
-        ObjectId objectId = new ObjectId(id);
-        User existingUser = userService.get(objectId.toHexString());
-        if (existingUser == null) {
-            throw new MyException("User not found", "USER_NOT_FOUND");
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        try {
+            ObjectId objectId = new ObjectId(id);
+            User existingUser = userService.get(objectId.toHexString());
+            if (existingUser == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            userService.delete(objectId.toHexString());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (MyException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        userService.delete(objectId.toHexString());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping
@@ -111,14 +146,15 @@ public class UserController {
         try {
             List<User> users = userService.getAll();
             return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (IllegalArgumentException ex) {
+        } catch (MyException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/AddToCart/{userId}/{itemId}")
-    public ResponseEntity<Boolean> addToCart(@PathVariable String userId, @PathVariable String itemId)
-            throws MyException {
+    public ResponseEntity<Boolean> addToCart(@PathVariable String userId, @PathVariable String itemId) {
         try {
             UserCart userCart = this.userCartService.addItemToUserCart(userId, itemId);
             if (userCart == null) {
@@ -133,11 +169,11 @@ public class UserController {
     }
 
     @GetMapping("/GetCart/{userId}")
-    public ResponseEntity<List<TruckPartInventory>> getCart(@PathVariable String userId) throws MyException {
+    public ResponseEntity<List<TruckPartInventory>> getCart(@PathVariable String userId) {
         try {
             List<TruckPartInventory> userCart = this.userCartService.getCartByUserId(userId);
             if (userCart == null) {
-                throw new MyException("Failed to get cart", "GET_CART_FAILED");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(userCart, HttpStatus.OK);
         } catch (MyException ex) {
@@ -146,7 +182,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
 
 /**

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.truckcompany.example.TruckCompany.DataAbstraction.ICategoryService;
 import com.truckcompany.example.TruckCompany.DataAbstraction.ITruckPartInventoryService;
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserCartService;
+import com.truckcompany.example.TruckCompany.DataAbstraction.MyException;
 import com.truckcompany.example.TruckCompany.Domain.Category;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
 import com.truckcompany.example.TruckCompany.Domain.User;
@@ -31,90 +32,103 @@ public class UserCartService implements IUserCartService{
         this.userCartRepository = userCartRepository;
         this.truckpartService = truckpartService;
     }
-     public UserCart addItemToUserCart(String userId, String itemId) {
+
+    public UserCart addItemToUserCart(String userId, String itemId) throws MyException {
         UserCart userCart = userCartRepository.findByUserId(userId);
-         TruckPartInventory item = truckpartService.get(itemId);
+        TruckPartInventory item = truckpartService.get(itemId);
         if (item == null) {
-            return null;
+            throw new MyException("Item not found");
         }
-        if(userCart == null)
-        {
+        if(userCart == null) {
             userCart = new UserCart();
             userCart.setUserId(userId);
             userCart.addTruckPart(itemId);
             userCartRepository.insert(userCart);
-        }
-        else{
-        
-        userCart.addTruckPart(itemId);
-        userCartRepository.save(userCart);
+        } else {
+            userCart.addTruckPart(itemId);
+            userCartRepository.save(userCart);
         }
         return userCart;      
     }
 
     @Override
-    public List<TruckPartInventory> getCartByUserId(String id) {
+    public List<TruckPartInventory> getCartByUserId(String id) throws MyException {
         UserCart userCart = userCartRepository.findByUserId(id);
-        if(userCart == null)
-        {
-            return null;
+        if(userCart == null) {
+            throw new MyException("User cart not found");
         }
         List<TruckPartInventory> inventory = new ArrayList<>();
         List<String> truckPartIds = userCart.getTruckPartIds();
         for (String truckPartId : truckPartIds) {
             TruckPartInventory truckPart = truckpartService.get(truckPartId);
             if (truckPart == null) {
-                return null;
+                continue;
             }
             inventory.add(truckPart);
         }
         return inventory;
     }
+
     @Override
-    public Boolean insert(UserCart item) {
+    public Boolean insert(UserCart item) throws MyException {
         if (item == null || item.getId() == null || item.getId().isEmpty()) {
-            throw new IllegalArgumentException("Invalid UserCart data");
+            throw new MyException("Invalid UserCart data");
         }
         userCartRepository.save(item);
         return true;
     }
 
     @Override
-    public Boolean update(UserCart item) {
+    public Boolean update(UserCart item) throws MyException {
         if (item == null || item.getId() == null || item.getId().isEmpty()) {
-            throw new IllegalArgumentException("Invalid UserCart data");
+            throw new MyException("Invalid UserCart data");
         }
         if (!userCartRepository.existsById(new ObjectId(item.getId()))) {
-            throw new IllegalArgumentException("UserCart with id " + item.getId() + " not found");
+            throw new MyException("UserCart with id " + item.getId() + " not found");
         }
         userCartRepository.save(item);
         return true;
     }
 
     @Override
-    public Boolean delete(String id) {
+    public Boolean delete(String id) throws MyException {
         if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Invalid id");
+            throw new MyException("Invalid id");
         }
         if (!userCartRepository.existsById(new ObjectId(id))) {
-            throw new IllegalArgumentException("UserCart with id " + id + " not found");
+            throw new MyException("UserCart with id " + id + " not found");
         }
         userCartRepository.deleteById(new ObjectId(id));
         return true;
     }
-    @Override
-    public List<UserCart> getAll() {
-        return userCartRepository.findAll();
-    }
-    @Override
-    public UserCart get(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
-    }
-   
 
+    @Override
+    public List<UserCart> getAll() throws MyException {
+        List<UserCart> userCarts = userCartRepository.findAll();
+        if (userCarts.isEmpty()) {
+            throw new MyException("No user carts found");
+        }
+        return userCarts;
+    }
+
+    @Override
+    public UserCart get(String id) throws MyException {
+        throw new MyException("Unimplemented method 'get'");
+    }
+
+    @Override
+    public Boolean deleteUserCart(String userId) throws MyException {
+        if (userId == null || userId.isEmpty()) {
+            throw new MyException("Invalid id");
+        }
+        UserCart userCart = userCartRepository.findByUserId(userId);
+        if (userCart == null) {
+            throw new MyException("UserCart with id " + userId + " not found");
+        }
+        userCartRepository.delete(userCart);
+        return true;
+    }
 }
-
 /**
  * UserCartService is a service class that provides methods for managing user carts.
  * It implements the IUserCartService interface.

@@ -20,98 +20,105 @@ public class TruckPartInventoryController {
         this.truckPartInventoryService = truckPartInventoryService;
     }
 
-@GetMapping("/{id}")
-public ResponseEntity<TruckPartInventory> get(@PathVariable String id) throws MyException {
-    try {
-        ObjectId objectId = new ObjectId(id);
-        TruckPartInventory truckPartInventory = truckPartInventoryService.get(objectId.toHexString());
-        if (truckPartInventory == null) {
-            throw new MyException("Truck part inventory not found", "TRUCK_PART_INVENTORY_NOT_FOUND");
+    @GetMapping("/{id}")
+    public ResponseEntity<TruckPartInventory> get(@PathVariable String id) {
+        try {
+            if (id == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            ObjectId objectId = new ObjectId(id);
+            TruckPartInventory truckPartInventory = truckPartInventoryService.get(objectId.toHexString());
+            if (truckPartInventory == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(truckPartInventory, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(truckPartInventory, HttpStatus.OK);
-    } catch (MyException ex) {
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
-
 
     @PostMapping
-public ResponseEntity<Void> insert(@RequestBody TruckPartInventory truckPartInventory) throws MyException {
-    try {
-        truckPartInventoryService.insert(truckPartInventory);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    } catch (IllegalArgumentException ex) {
-        throw new MyException("Failed to insert truck part inventory", "INSERT_FAILED");
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<Void> insert(@RequestBody TruckPartInventory truckPartInventory) {
+        try {
+            if (truckPartInventory == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            truckPartInventoryService.insert(truckPartInventory);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-}
 
     @PutMapping("/{id}")
-public ResponseEntity<Void> update(@PathVariable String id, @RequestBody TruckPartInventory truckPartInventory)
-        throws MyException {
-    try {
-        ObjectId objectId = new ObjectId(id);
-        TruckPartInventory existingTruckPartInventory = truckPartInventoryService.get(objectId.toHexString());
-        if (existingTruckPartInventory == null) {
-            throw new MyException("Truck part inventory not found", "TRUCK_PART_INVENTORY_NOT_FOUND");
+    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody TruckPartInventory truckPartInventory) {
+        try {
+            if (id == null || truckPartInventory == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            ObjectId objectId = new ObjectId(id);
+            TruckPartInventory existingTruckPartInventory = truckPartInventoryService.get(objectId.toHexString());
+            if (existingTruckPartInventory == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            truckPartInventory.setId(objectId.toHexString());
+            truckPartInventoryService.update(truckPartInventory);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        truckPartInventory.setId(objectId.toHexString());
-        truckPartInventoryService.update(truckPartInventory);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } catch (MyException ex) {
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
-    
-@DeleteMapping("/{id}")
-public ResponseEntity<Void> delete(@PathVariable String id) throws MyException {
-    try {
-        ObjectId objectId = new ObjectId(id);
-        TruckPartInventory existingTruckPartInventory = truckPartInventoryService.get(objectId.toHexString());
-        if (existingTruckPartInventory == null) {
-            throw new MyException("Truck part inventory not found", "TRUCK_PART_INVENTORY_NOT_FOUND");
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        try {
+            if (id == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            ObjectId objectId = new ObjectId(id);
+            TruckPartInventory existingTruckPartInventory = truckPartInventoryService.get(objectId.toHexString());
+            if (existingTruckPartInventory == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            truckPartInventoryService.delete(objectId.toHexString());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        truckPartInventoryService.delete(objectId.toHexString());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } catch (MyException ex) {
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TruckPartInventory>> getAll() {
+        try {
+            List<TruckPartInventory> truckPartInventories = truckPartInventoryService.getAll();
+            if (truckPartInventories == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/category/{categoryId}/truck/{truckId}")
+    public ResponseEntity<List<TruckPartInventory>> getByCategoryIdAndTruckId(@PathVariable String categoryId,
+            @PathVariable String truckId) {
+        try {
+            if (categoryId == null || truckId == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            List<TruckPartInventory> truckPartInventories = truckPartInventoryService
+                    .GetTruckPartInventoryByTruckPartId(categoryId, truckId);
+            if (truckPartInventories == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
- @GetMapping
-public ResponseEntity<List<TruckPartInventory>> getAll() throws MyException {
-    try {
-        List<TruckPartInventory> truckPartInventories = truckPartInventoryService.getAll();
-        return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
-    } catch (IllegalArgumentException ex) {
-        throw new MyException("Failed to get all truck part inventories", "GET_ALL_FAILED");
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-}
-
-@GetMapping("/category/{categoryId}/truck/{truckId}")
-public ResponseEntity<List<TruckPartInventory>> getByCategoryIdAndTruckId(@PathVariable String categoryId,
-        @PathVariable String truckId) throws MyException {
-    try {
-        List<TruckPartInventory> truckPartInventories = truckPartInventoryService
-                .GetTruckPartInventoryByTruckPartId(categoryId, truckId);
-        return new ResponseEntity<>(truckPartInventories, HttpStatus.OK);
-    } catch (IllegalArgumentException ex) {
-        throw new MyException("Failed to get truck part inventories by category ID and truck ID",
-                "GET_BY_CATEGORY_AND_TRUCK_FAILED");
-    } catch (Exception ex) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-}
-}
 /**
  * TruckPartInventoryController is a REST controller that handles HTTP requests related to TruckPartInventory entities.
  * It uses the ITruckPartInventoryService to perform operations on the TruckPartInventory entities.

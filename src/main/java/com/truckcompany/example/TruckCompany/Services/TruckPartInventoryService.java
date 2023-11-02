@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import com.truckcompany.example.TruckCompany.DataAbstraction.ITruckPartInventoryService;
+import com.truckcompany.example.TruckCompany.DataAbstraction.MyException;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
 import com.truckcompany.example.TruckCompany.Repositories.ICategoryRepository;
 import com.truckcompany.example.TruckCompany.Repositories.ITruckPartinventoryRepository;
@@ -29,13 +30,18 @@ public class TruckPartInventoryService implements ITruckPartInventoryService {
     }
 
     @Override
-    public TruckPartInventory get(String id) {
-        Optional<TruckPartInventory> optionalTruckPartInventory = truckPartInventoryRepository.findById(new ObjectId(id));
-        return optionalTruckPartInventory.orElse(null);
+    public TruckPartInventory get(String id) throws MyException {
+        try {
+            Optional<TruckPartInventory> optionalTruckPartInventory = truckPartInventoryRepository
+                    .findById(new ObjectId(id));
+            return optionalTruckPartInventory.orElse(null);
+        } catch (Exception e) {
+            throw new MyException("An error occurred while getting the truck part inventory", e);
+        }
     }
 
     @Override
-    public Boolean insert(TruckPartInventory item) {
+    public Boolean insert(TruckPartInventory item) throws MyException{
         Category category = this.categoryRepository.findById(new ObjectId(item.getCategoryId())).orElse(null);
         if(category == null)
             return false;
@@ -49,7 +55,7 @@ public class TruckPartInventoryService implements ITruckPartInventoryService {
     }
 
     @Override
-    public Boolean update(TruckPartInventory item) {
+    public Boolean update(TruckPartInventory item)throws MyException {
         Category category = this.categoryRepository.findById(new ObjectId(item.getCategoryId())).orElse(null);
         if(category == null)
             return false;
@@ -71,7 +77,7 @@ public class TruckPartInventoryService implements ITruckPartInventoryService {
     }
 
     @Override
-    public Boolean delete(String id) {
+    public Boolean delete(String id) throws MyException{
         TruckPartInventory itemToDelete = this.truckPartInventoryRepository.findById(new ObjectId(id)).orElse(null);
         if(itemToDelete == null)
             return false;
@@ -80,12 +86,12 @@ public class TruckPartInventoryService implements ITruckPartInventoryService {
     }
 
     @Override
-    public List<TruckPartInventory> getAll() {
+    public List<TruckPartInventory> getAll() throws MyException{
         return truckPartInventoryRepository.findAll();
     }
 
   @Override
-public List<TruckPartInventory> GetTruckPartInventoryByTruckPartId(String categoryId, String truckId) {
+public List<TruckPartInventory> GetTruckPartInventoryByTruckPartId(String categoryId, String truckId) throws MyException{
     List<String> truckIds = new ArrayList<>();
     truckIds.add(truckId);
     return truckPartInventoryRepository.findByCategoryIdAndTruckIdIn(categoryId, truckIds);
