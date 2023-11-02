@@ -59,3 +59,40 @@ public class User {
 
 
 }
+
+
+/**
+ * User is a domain object that represents a user in the system.
+ * It is annotated with @Document to indicate that it is a MongoDB document.
+ * 
+ * The class has the following fields:
+ * 
+ * - name: The name of the user.
+ * - email: The email of the user.
+ * - password: The password of the user.
+ * - id: The ID of the user.
+ * 
+ * The class has the following methods:
+ * 
+ * - User(String name, String email, String password, String id): Constructor that initializes the name, email, password, and id fields.
+ * 
+ * - User(): Default constructor.
+ * 
+ * - getName(): Returns the name of the user.
+ * 
+ * - getEmail(): Returns the email of the user.
+ * 
+ * - getPassword(): Returns the password of the user.
+ * 
+ * - getId(): Returns the ID of the user.
+ * 
+ * - setName(String name): Sets the name of the user.
+ * 
+ * - setEmail(String email): Sets the email of the user.
+ * 
+ * - setPassword(String password): Sets the password of the user.
+ * 
+ * - setId(String id): Sets the ID of the user.
+ * 
+ * - equals(Object obj): Checks if the user is equal to another object. Two users are considered equal if their email, name, password, and id are the same.
+ */

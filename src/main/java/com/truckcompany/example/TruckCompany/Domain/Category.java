@@ -61,3 +61,32 @@ public class Category {
     }
 
 }
+
+/**
+ * Category is a domain object that represents a category in the system.
+ * It is annotated with @Document to indicate that it is a MongoDB document.
+ * 
+ * The class has the following fields:
+ * 
+ * - name: The name of the category.
+ * - userId: The ID of the user associated with the category.
+ * - id: The ID of the category.
+ * 
+ * The class has the following methods:
+ * 
+ * - setUserId(String id): Sets the ID of the user associated with the category.
+ * 
+ * - getUserId(): Returns the ID of the user associated with the category.
+ * 
+ * - Category(String name): Constructor that initializes the name field.
+ * 
+ * - setId(String Id): Sets the ID of the category.
+ * 
+ * - getId(): Returns the ID of the category.
+ * 
+ * - getName(): Returns the name of the category.
+ * 
+ * - setName(String name): Sets the name of the category.
+ * 
+ * - equals(Object obj): Checks if the category is equal to another object. Two categories are considered equal if their name and id are the same.
+ */

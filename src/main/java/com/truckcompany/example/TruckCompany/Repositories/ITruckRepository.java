@@ -20,3 +20,22 @@ public interface ITruckRepository extends MongoRepository<Truck, ObjectId> {
 
     List<Truck> findByIdIn(List<String> Id);
 }
+
+/**
+ * ITruckRepository is an interface for a repository that provides methods for managing Truck objects.
+ * It extends the MongoRepository interface from Spring Data MongoDB, which provides methods for CRUD operations.
+ * 
+ * The interface has the following methods:
+ * 
+ * - findTruckByImdbId(String imdbId): Returns an Optional that may contain a Truck with the given IMDB ID. If no such Truck exists, the Optional will be empty.
+ * 
+ * - findByIdIn(List<String> Id): Returns a list of Trucks whose IDs are in the given list.
+ * 
+ * The interface is annotated with @Repository, which indicates that it's a Bean and it's expected to provide database operations.
+ * 
+ * The interface takes two parameters:
+ * 
+ * - Truck: The domain type the repository manages. It manages Truck objects.
+ * 
+ * - ObjectId: The type of the id of the domain the repository manages. The id of the Truck objects is of type ObjectId.
+ */

@@ -57,3 +57,26 @@ public class CategoryService implements ICategoryService{
         return categoryRepository.findAll();
     }
 }
+
+/**
+ * CategoryService is a service class that provides methods for managing categories.
+ * It implements the ICategoryService interface.
+ * 
+ * The class has the following fields:
+ * 
+ * - categoryRepository: The repository for accessing the Category data.
+ * 
+ * The class has the following methods:
+ * 
+ * - CategoryService(ICategoryRepository categoryRepository): Constructor that initializes the categoryRepository field.
+ * 
+ * - get(String id): Returns the Category with the given ID. If no such Category exists, it returns null.
+ * 
+ * - insert(Category category): Inserts a new Category. If the name of the Category is less than 1 character long, it returns false. Otherwise, it returns true if the Category was inserted successfully.
+ * 
+ * - update(Category category): Updates an existing Category. If the name of the Category is less than 1 character long or if no Category with the given ID exists, it returns false. Otherwise, it updates the Category and returns true if the update was successful.
+ * 
+ * - delete(String id): Deletes the Category with the given ID. If no Category with the given ID exists, it returns false. Otherwise, it deletes the Category and returns true.
+ * 
+ * - getAll(): Returns a list of all Categories.
+ */

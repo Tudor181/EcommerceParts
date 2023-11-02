@@ -101,3 +101,20 @@ public class TruckController {
     }
 
 }
+
+/**
+ * TruckController is a REST controller that handles HTTP requests related to Truck entities.
+ * It uses the TruckService to perform operations on the Truck entities.
+ * 
+ * The class has the following methods:
+ * 
+ * - getAllTrucks(): Retrieves all Trucks. Returns 200 along with the list of Trucks.
+ * 
+ * - getTruckById(String id): Retrieves a Truck by its id. Returns 404 if the Truck is not found, 400 if the id is not a valid ObjectId, and 200 along with the Truck if it is found.
+ * 
+ * - getTruckByImdbId(String imdbId): Retrieves a Truck by its IMDB id. Returns 200 along with the Truck if it is found. This method is marked as deprecated.
+ * 
+ * - createTruck(NewTruckRequest payload): Creates a new Truck. The request body should contain the details of the Truck to be created. Returns 201 if the creation is successful, and 400 if the request is not valid.
+ * 
+ * - deleteTruck(String id): Deletes a Truck by its id. Returns 200 if the deletion is successful, and 404 if the Truck is not found.
+ */

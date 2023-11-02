@@ -78,3 +78,30 @@ public class UserService implements IUserService {
     }
 
 }
+
+/**
+ * UserService is a service class that provides methods for managing users.
+ * It implements the IUserService interface.
+ * 
+ * The class has the following fields:
+ * 
+ * - userService: The repository for accessing the User data.
+ * 
+ * The class has the following methods:
+ * 
+ * - validateEmail(String email): Checks if the given email is valid. Returns true if the email is valid, false otherwise.
+ * 
+ * - UserService(IUserRepository userService): Constructor that initializes the userService field.
+ * 
+ * - get(String id): Returns the User with the given ID. If no such User exists, it returns null.
+ * 
+ * - insert(User item): Inserts a new User. If the User is successfully inserted, it returns true. Otherwise, it returns false.
+ * 
+ * - update(User item): Updates an existing User. If the User does not exist, or if the User's email is not valid, or if the User's name is empty, it returns null. Otherwise, it updates the User and returns true if the update was successful, false otherwise.
+ * 
+ * - delete(String id): Deletes the User with the given ID. If the User does not exist, it returns null. Otherwise, it deletes the User and returns true.
+ * 
+ * - getAll(): Returns a list of all Users.
+ * 
+ * - getByEmail(String email, String password): Returns the User with the given email and password. If no such User exists, it returns null.
+ */

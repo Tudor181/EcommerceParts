@@ -49,7 +49,6 @@ import com.truckcompany.example.TruckCompany.Domain.Category;
 import com.truckcompany.example.TruckCompany.Domain.Driver;
 import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
-import com.truckcompany.example.TruckCompany.Requests.AddToCartRequest;
 import com.truckcompany.example.TruckCompany.Requests.ChangeDriverNameRequest;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 
@@ -701,8 +700,6 @@ public class MySwing extends JFrame {
             // basket.add(selectedPart);
 
             RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
-
-            AddToCartRequest addToCartRequest = new AddToCartRequest("6543c379f8e0cb3f68a16f20", selectedPart.getId());
 
             String addToCartUrl = "http://localhost:8080/user/AddToCart/" + "6543c379f8e0cb3f68a16f20" + '/'
                     + selectedPart.getId(); // trebuie userID
