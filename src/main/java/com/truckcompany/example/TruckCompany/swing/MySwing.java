@@ -457,11 +457,12 @@ public class MySwing extends JFrame {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 TruckPartInventory[] userCart = responseEntity.getBody();
+                if (userCart != null) {
+                    cartListModel.clear();
+                    for (TruckPartInventory item : userCart) {
 
-                cartListModel.clear();
-                for (TruckPartInventory item : userCart) {
-
-                    cartListModel.addElement(item.getName() + " - $" + item.getPrice());
+                        cartListModel.addElement(item.getName() + " - $" + item.getPrice());
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "There was an unexpected error getting the cart", "Error",
@@ -497,18 +498,24 @@ public class MySwing extends JFrame {
         checkoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
-                String deleteUrl = "http://localhost:8080/user/DeleteCart/" + userId;
-                ResponseEntity<Void> responseEntity = restTemplate.exchange(
-                        deleteUrl,
-                        HttpMethod.DELETE,
-                        null,
-                        Void.class);
-                if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                    JOptionPane.showMessageDialog(null, "Order placed successfully", "Success",
-                            JOptionPane.INFORMATION_MESSAGE);
+                if (cartListModel != null && cartListModel.size() > 0) {
+                    RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
+                    String deleteUrl = "http://localhost:8080/user/DeleteCart/" + userId;
+                    ResponseEntity<Void> responseEntity = restTemplate.exchange(
+                            deleteUrl,
+                            HttpMethod.DELETE,
+                            null,
+                            Void.class);
+                    if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                        JOptionPane.showMessageDialog(null, "Order placed successfully", "Success",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        cartListModel.clear();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to place order", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Failed to place order", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Empty cart", "Info", JOptionPane.INFORMATION_MESSAGE);
                 }
                 cartFrame.dispose();
 
