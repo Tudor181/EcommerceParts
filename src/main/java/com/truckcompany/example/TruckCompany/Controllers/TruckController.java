@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.truckcompany.example.TruckCompany.DataAbstraction.MyException;
 import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Requests.NewTruckRequest;
 import com.truckcompany.example.TruckCompany.Services.TruckService;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 @RestController
 @RequestMapping("/api/v1.0/trucks")
@@ -40,37 +42,51 @@ public class TruckController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)) })
     @GetMapping
     public ResponseEntity<List<Truck>> getAllTrucks() {
-        // return new ResponseEntity<String>("All trucks", HttpStatus.OK);
-        return new ResponseEntity<List<Truck>>(truckService.allTrucks(),
-                HttpStatus.OK);
+        try {
+            List<Truck> trucks = truckService.allTrucks();
+            if (trucks == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(trucks, HttpStatus.OK);
+        } catch (MyException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // unsafe because of the expose of the obj id
     @Operation(summary = "Get truck by id")
     @GetMapping("/{id}")
     public ResponseEntity<Truck> getTruckById(@PathVariable String id) {
         try {
+            if (id == null) {
+                throw new MyException("Id is null");
+            }
             Optional<Truck> truck = truckService.truckById(id);
-            if (truck != null) {
-                // ResponseMeu raspuns = new ResponseMeu(truck.get().getId());
-                // return new ResponseEntity<>(raspuns, HttpStatus.OK);
-                return new ResponseEntity<>(truck.get(),
-                        HttpStatus.OK);
-            } else
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
+            if (truck.isPresent()) {
+                return new ResponseEntity<>(truck.get(), HttpStatus.OK);
+            } else {
+                throw new MyException("Truck not found");
+            }
+        } catch (MyException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
     }
 
-    // better to not expose the ObjId
     @Deprecated
     @Operation(summary = "Get truck by imdbId")
     @GetMapping("/imdb/{imdbId}")
     public ResponseEntity<Optional<Truck>> getTruckByImdbId(@PathVariable String imdbId) {
-        return new ResponseEntity<Optional<Truck>>(truckService.truckByImdbId(imdbId),
-                HttpStatus.OK);
+        try {
+            if (imdbId == null) {
+                throw new MyException("ImdbId is null");
+            }
+            Optional<Truck> truck = truckService.truckByImdbId(imdbId);
+            if (truck == null) {
+                throw new MyException("Truck not found");
+            }
+            return new ResponseEntity<>(truck, HttpStatus.OK);
+        } catch (MyException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "Create a new truck")
@@ -78,30 +94,42 @@ public class TruckController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)) })
     @PostMapping("/new/")
     public ResponseEntity<Truck> createTruck(@RequestBody NewTruckRequest payload) {
-        final String nrOfReg = payload.nrOfRegistration != null ? payload.nrOfRegistration.get() : "";
-        if (payload.manufactureYear < MIN_MANUFACTURERYEAR
-                || payload.manufacturer.length() < 2 || !(nrOfReg.length() == 7 || nrOfReg.length() == 0))
-            // || (payload.nrOfRegistration.isEmpty()
-            // || !payload.nrOfRegistration.isEmpty() &&
-            // payload.nrOfRegistration.get().length() == 7))
+        try {
+            if (payload == null || payload.manufacturer == null || payload.nrOfRegistration == null) {
+                throw new MyException("Payload is null");
+            }
+            final String nrOfReg = payload.nrOfRegistration.get();
+            if (payload.manufactureYear < MIN_MANUFACTURERYEAR || payload.manufacturer.length() < 2 || !(nrOfReg.length() == 7 || nrOfReg.length() == 0)) {
+                throw new MyException("Invalid payload data");
+            }
+            Truck createdTruck = truckService.createTruck(payload.imageId, payload.manufacturer, payload.nrOfRegistration, payload.manufactureYear);
+            if (createdTruck == null) {
+                throw new MyException("Truck not created");
+            }
+            return new ResponseEntity<>(createdTruck, HttpStatus.CREATED);
+        } catch (MyException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        Truck createdTruck = truckService.createTruck(payload.imageId, payload.manufacturer, payload.nrOfRegistration,
-                payload.manufactureYear);
-        return new ResponseEntity<Truck>(createdTruck, HttpStatus.CREATED);
+        }
     }
 
     @Operation(summary = "Delete a truck by id")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteTruck(@PathVariable String id) {
-        final boolean response = truckService.deleteTruckById(id);
-        if (response)
-            return new ResponseEntity<String>("Truck Deleted", HttpStatus.OK);
-        else
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            if (id == null) {
+                throw new MyException("Id is null");
+            }
+            final boolean response = truckService.deleteTruckById(id);
+            if (response) {
+                return new ResponseEntity<>("Truck Deleted", HttpStatus.OK);
+            } else {
+                throw new MyException("Truck not found");
+            }
+        } catch (MyException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
-
 }
-
 /**
  * TruckController is a REST controller that handles HTTP requests related to Truck entities.
  * It uses the TruckService to perform operations on the Truck entities.

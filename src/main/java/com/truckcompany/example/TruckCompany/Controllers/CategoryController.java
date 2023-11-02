@@ -23,52 +23,71 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<Category> get(@PathVariable String id) {
         try {
+            if (id == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             ObjectId objectId = new ObjectId(id);
             Category category = categoryService.get(objectId.toHexString());
             if (category == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(category, HttpStatus.OK);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping
     public ResponseEntity<Void> insert(@RequestBody CategoryPost request) {
         try {
+            if (request == null || request.name == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             Category category = new Category(request.name);
             categoryService.insert(category);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update( @RequestBody Category category) {
+    public ResponseEntity<Void> update(@RequestBody Category category) {
         try {
+            if (category == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             categoryService.update(category);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         try {
+            if (id == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             categoryService.delete(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping
     public ResponseEntity<List<Category>> getAll() {
-        List<Category> categories = categoryService.getAll();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        try {
+            List<Category> categories = categoryService.getAll();
+            if (categories == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 /**

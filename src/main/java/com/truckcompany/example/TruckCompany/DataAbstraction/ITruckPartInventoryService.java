@@ -4,5 +4,5 @@ import java.util.List;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
 
 public interface ITruckPartInventoryService extends IService<TruckPartInventory> {
-    public List<TruckPartInventory> GetTruckPartInventoryByTruckPartId(String categoryId, String truckId);
+    public List<TruckPartInventory> GetTruckPartInventoryByTruckPartId(String categoryId, String truckId) throws MyException;
 }

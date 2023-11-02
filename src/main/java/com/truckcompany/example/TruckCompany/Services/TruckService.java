@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.truckcompany.example.TruckCompany.DataAbstraction.MyException;
 import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Repositories.ITruckRepository;
 
@@ -18,11 +19,11 @@ public class TruckService {
     @Autowired // instanciate this class here
     private ITruckRepository truckRepository;
 
-    public List<Truck> allTrucks() {
+    public List<Truck> allTrucks() throws MyException {
         return truckRepository.findAll();
     }
 
-    public Optional<Truck> truckById(String id) {
+    public Optional<Truck> truckById(String id) throws MyException {
 
         try {
             Optional<Truck> truckFound = truckRepository.findById(new ObjectId(id));
@@ -53,7 +54,7 @@ public class TruckService {
         }
     }
 
-    public Optional<Truck> truckByImdbId(String imdbId) {
+    public Optional<Truck> truckByImdbId(String imdbId)  throws MyException{
         return truckRepository.findTruckByImdbId(imdbId);
     }
 

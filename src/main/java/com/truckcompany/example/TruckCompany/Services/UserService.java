@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserService;
+import com.truckcompany.example.TruckCompany.DataAbstraction.MyException;
 import com.truckcompany.example.TruckCompany.Domain.User;
 import com.truckcompany.example.TruckCompany.Repositories.IUserRepository;
 
@@ -16,11 +17,14 @@ import java.util.regex.Pattern;
 public class UserService implements IUserService {
     private final IUserRepository userService;
 
-    public boolean validateEmail(String email) {
+    public boolean validateEmail(String email) throws MyException {
         String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
+        if (!matcher.matches()) {
+            throw new MyException("Invalid email format");
+        }
+        return true;
     }
 
     @Autowired
@@ -29,56 +33,73 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User get(String id) {
-        return this.userService.findById(new ObjectId(id)).orElse(null);
+    public User get(String id) throws MyException {
+        User user = this.userService.findById(new ObjectId(id)).orElse(null);
+        if (user == null) {
+            throw new MyException("User not found");
+        }
+        return user;
     }
 
     @Override
-    public Boolean insert(User item) {
-        return this.userService.save(item).getId().length() > 0;
+    public Boolean insert(User item) throws MyException {
+        User savedUser = this.userService.save(item);
+        if (savedUser.getId().length() <= 0) {
+            throw new MyException("Failed to insert user");
+        }
+        return true;
     }
 
     @Override
-    public Boolean update(User item) {
+    public Boolean update(User item) throws MyException {
         User user = this.userService.findById(new ObjectId(item.getId())).orElse(null);
         if (user == null) {
-            return null;
+            throw new MyException("User not found");
         }
         if (!this.validateEmail(item.getEmail())) {
-            return null;
+            throw new MyException("Invalid email format");
         }
         if (item.getName().length() < 1) {
-            return null;
+            throw new MyException("User name is empty");
         }
 
         user.setEmail(item.getEmail());
         user.setName(item.getName());
         User usersaved = this.userService.save(user);
-        return item.equals(usersaved);
+        if (!item.equals(usersaved)) {
+            throw new MyException("Failed to update user");
+        }
+        return true;
     }
 
     @Override
-    public Boolean delete(String id) {
+    public Boolean delete(String id) throws MyException {
         User user = this.userService.findById(new ObjectId(id)).orElse(null);
         if (user == null) {
-            return null;
+            throw new MyException("User not found");
         }
         this.userService.deleteById(new ObjectId(id));
         return true;
     }
 
     @Override
-    public List<User> getAll() {
-        return this.userService.findAll();
+    public List<User> getAll() throws MyException {
+        List<User> users = this.userService.findAll();
+        if (users.isEmpty()) {
+            throw new MyException("No users found");
+        }
+        return users;
     }
 
     @Override
-    public User getByEmail(String email, String password) {
-        return this.userService.findByEmailAndPassword(email, password);
+    public User getByEmail(String email, String password) throws MyException {
+        User user = this.userService.findByEmailAndPassword(email, password);
+        if (user == null) {
+            throw new MyException("User not found");
+        }
+        return user;
     }
-
 }
-
 /**
  * UserService is a service class that provides methods for managing users.
  * It implements the IUserService interface.
