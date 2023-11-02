@@ -174,7 +174,8 @@ public class UserController {
             List<TruckPartInventory> userCart = this.userCartService.getCartByUserId(userId);
             return new ResponseEntity<>(userCart, HttpStatus.OK);
         } catch (MyException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(null, HttpStatus.OK);
+
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
