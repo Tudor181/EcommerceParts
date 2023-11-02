@@ -33,7 +33,7 @@ public class AuthFrame extends JFrame {
     public void initialize() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        // mainPanel.setAlignmentX(10f);// Set vertical layout
+
         mainPanel.add(Box.createVerticalStrut(10));
 
         JTextField emailField = new JTextField(20);
@@ -58,21 +58,16 @@ public class AuthFrame extends JFrame {
         mainPanel.add(emailField);
         mainPanel.add(Box.createVerticalStrut(10));
         JPasswordField passwordField = new JPasswordField(20);
-        // passwordField.setText("Enter password");
         passwordField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                // if (passwordField.getText().equals("Enter password")) {
-                // passwordField.setText("");
-                // }
+
                 passwordField.setBorder(new LineBorder(Color.BLUE));
             }
 
             @Override
             public void focusLost(FocusEvent e) {
-                // if (passwordField.getText().isEmpty()) {
-                // passwordField.setText("Enter password");
-                // }
+
                 passwordField.setBorder(UIManager.getBorder("TextField.border")); // Reset the border to default
             }
         });
@@ -87,12 +82,11 @@ public class AuthFrame extends JFrame {
         loginButton.setFont(new Font("Arial", Font.PLAIN, 16)); // Set font
         mainPanel.add(loginButton);
 
-        // Create and style the "Register" button
         JButton registerButton = new JButton("Register");
         registerButton.setAlignmentX(0.5f);
-        registerButton.setForeground(Color.BLACK); // Set text color
-        registerButton.setBackground(new Color(0, 153, 0)); // Set background color
-        registerButton.setFont(new Font("Arial", Font.PLAIN, 16)); // Set font
+        registerButton.setForeground(Color.BLACK);
+        registerButton.setBackground(new Color(0, 153, 0));
+        registerButton.setFont(new Font("Arial", Font.PLAIN, 16));
         mainPanel.add(registerButton);
 
         loginButton.addActionListener(new ActionListener() {
@@ -119,7 +113,7 @@ public class AuthFrame extends JFrame {
                             JOptionPane.showMessageDialog(null, "Login successful! User ID: " + userId, "Success",
                                     JOptionPane.INFORMATION_MESSAGE);
 
-                            // Open the main application window here
+                            // Open the main application window
                             MySwing mySwing = new MySwing(userId);
                             mySwing.initialize();
                             dispose();
@@ -152,7 +146,6 @@ public class AuthFrame extends JFrame {
                 // Create and display the RegisterForm
                 RegisterForm registerForm = new RegisterForm();
                 registerForm.initialize();
-                // dispose(); // Close the current login form
             }
 
         });
@@ -161,7 +154,6 @@ public class AuthFrame extends JFrame {
 
         setTitle("LOGIN");
         setMinimumSize(new Dimension(300, 150));
-        // setMaximumSize(get);
         setResizable(false);
         pack();
         setLocationRelativeTo(null); // Center the frame on the screen
@@ -171,19 +163,12 @@ public class AuthFrame extends JFrame {
 
     private String loginUser(String email, String password) {
         try {
-            // String apiUrl = "http://localhost:8080/login?UserEmail=" + email +
-            // "&UserPassword=" + password;
-            // String apiUrl =
-            // "http://localhost:8080/user/login?UserEmail=Tudor%40yahoo.com&UserPassword=18112003";
-            String apiUrl = "http://localhost:8080/user/login";
-
             RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
             String loginEndpoint = "http://localhost:8080/user/login";
             UserLoginRequest loginRequest = new UserLoginRequest();
             loginRequest.setUserEmail(email);
             loginRequest.setUserPassword(password);
 
-            // Make the HTTP POST request with the request body
             ResponseEntity<String> responseEntity = restTemplate.postForEntity(loginEndpoint, loginRequest,
                     String.class);
 

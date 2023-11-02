@@ -13,8 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
@@ -57,8 +55,7 @@ public class MySwing extends JFrame {
     private final Font mainFont = new Font("Arial Bold", Font.BOLD, 18);
     private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
     private JList<Truck> truckList = new JList<>(truckListModel);
-    private ArrayList<TruckPartInventory> basket = new ArrayList<>();
-    private JList<String> cartList = new JList<>();
+    private JList<String> cartList; // rip intelisense says that is not used
     private String userId;
 
     JTextField tfFirstName;
@@ -84,7 +81,6 @@ public class MySwing extends JFrame {
 
         JPanel truckListPanel = new JPanel(new BorderLayout());
 
-        // Create a title label
         JLabel titleLabel = new JLabel("Truck List");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
@@ -96,11 +92,6 @@ public class MySwing extends JFrame {
         truckListPanel.add(titleLabel, BorderLayout.NORTH);
 
         truckListPanel.add(truckScrollPane, BorderLayout.CENTER);
-        // truckList.setVisible(false);
-        // truckScrollPane.setVisible(false);
-
-        // JLabel lbWecome = new JLabel();
-        // lbWecome.setFont(mainFont);
 
         // center part
         JButton showAllTrucks = new JButton("Show All Trucks");
@@ -117,6 +108,7 @@ public class MySwing extends JFrame {
                     ResponseEntity<Truck[]> response = restTemplate.getForEntity(
                             "http://localhost:8080/api/v1.0/trucks",
                             Truck[].class);
+
                     if (response.getStatusCode() == HttpStatusCode.valueOf(200)) {
                         Truck[] trucks = response.getBody();
 
@@ -127,7 +119,7 @@ public class MySwing extends JFrame {
 
                         truckList.setCellRenderer(new TruckListCellRenderer());
                         truckScrollPane.setPreferredSize(new Dimension(400, scrollHeight));
-                        truckList.setFixedCellHeight(40); // Adjust the row height as needed
+                        truckList.setFixedCellHeight(40); // Adjust the row height
                         truckList.setOpaque(false);
                         truckScrollPane.setOpaque(false);
 
@@ -155,7 +147,6 @@ public class MySwing extends JFrame {
 
                         allTruckFrame.add(scrollPane, BorderLayout.CENTER);
                         allTruckFrame.setSize(600, 400);
-                        // allTruckFrame.setVisible(true);
 
                     } else {
                         error.setText(
@@ -469,7 +460,7 @@ public class MySwing extends JFrame {
 
                 cartListModel.clear();
                 for (TruckPartInventory item : userCart) {
-                    // Assuming TruckPartInventory has getName() and getPrice() methods
+
                     cartListModel.addElement(item.getName() + " - $" + item.getPrice());
                 }
             } else {
@@ -645,11 +636,7 @@ public class MySwing extends JFrame {
     private TruckPartInventory[] getPartsForTruckAndCategory(Truck truck, Category category) {
         RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
         try {
-            // ResponseEntity<Driver[]> response = restTemplate.getForEntity(
-            // "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
-            // Driver[].class);
-            // "http://localhost:8080/truckpartinventory/category/" + category.getId() +
-            // "/truck/" + truck.getId(),
+
             ResponseEntity<TruckPartInventory[]> response2 = restTemplate.getForEntity(
                     "http://localhost:8080/truckpartinventory/category/" + category.getId()
                             + "/truck/" + truck.getId(),
@@ -718,19 +705,17 @@ public class MySwing extends JFrame {
     private void addToBasket(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < parts.length) {
             TruckPartInventory selectedPart = parts[rowIndex];
-            // basket.add(selectedPart);
 
             RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
 
             String addToCartUrl = "http://localhost:8080/user/AddToCart/" + userId + '/'
-                    + selectedPart.getId(); // trebuie userID
+                    + selectedPart.getId();
             System.out.println("sa vedem" + addToCartUrl);
             try {
                 ResponseEntity<Boolean> response = restTemplate.postForEntity(addToCartUrl, null, Boolean.class);
 
                 if (response.getStatusCode() == HttpStatus.OK && response.getBody() == true) {
                     // Item added to the cart successfully
-                    basket.add(selectedPart);
                     JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "' to the basket.");
                 } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
                     JOptionPane.showMessageDialog(this, "Failed to add item to the cart. Bad request.", "Error",
@@ -810,7 +795,6 @@ public class MySwing extends JFrame {
 
         public Object getCellEditorValue() {
             if (isPushed) {
-                // JOptionPane.showMessageDialog(button, label + ": Ouch!");
                 addToBasket(clickedRow);
             }
             isPushed = false;
