@@ -2,11 +2,13 @@
 
 EcomerceParts is a specialized e-commerce platform designed exclusively for truck owners, providing them with a user-friendly experience to manage their truck fleet, drivers, and order truck parts. The application is built using Java Spring Boot mostly and Java Swing and integrates with a RESTful API for seamless data exchange.
 
-## Technologies used
-### MongoDB for database
-### Java Spring Framework for backend side
-### Java Swing for UI
-### React Native for mobile integration
+## Technologies Used
+
+- **Database:** MongoDB
+- **Backend Framework:** Java Spring Framework
+- **User Interface:** Java Swing
+- **Mobile Integration:** React Native
+- **API Doumentation:** Swagger
 
 ## Features
 
@@ -74,9 +76,7 @@ EcomerceParts relies on the following technologies and libraries:
 - RESTful API for data exchange and management.
 - Spring Boot for the backend API.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+##Foot Notes
 
 Feel free to contribute to this project by submitting issues or pull requests.
 
