@@ -14,6 +14,9 @@ public class TruckPartInventory {
     private int amount;
     private String categoryId;
     private String name;
+    private Double price;
+
+
 
     public TruckPartInventory(List<String> truckId, String id, int amount, String categoryId, String name) {
         this.truckId = truckId;
@@ -24,6 +27,15 @@ public class TruckPartInventory {
     }
 
     public TruckPartInventory() {
+    }
+
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Double getPrice() {
+        return price;
     }
 
     public void setName(String name) {
