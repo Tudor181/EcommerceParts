@@ -23,6 +23,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.truckcompany.example.TruckCompany.Domain.User;
 
 import javax.swing.BoxLayout;
@@ -103,13 +106,34 @@ public class AuthFrame extends JFrame {
                 if (choice == JOptionPane.YES_OPTION) {
                     JOptionPane.showMessageDialog(null, "You have selected to log in!", "Result",
                             JOptionPane.INFORMATION_MESSAGE);
-                    // loginUser(emailField.getText(), String.valueOf(passwordField.getPassword()));
-                    dispose();
-                    MySwing mySwing = new MySwing();
-                    mySwing.initialize();
-                    // Handle 'Yes' button action
-                    // You can add your login logic here
-                    System.out.println("User clicked 'Yes' to log in.");
+
+                    String email = emailField.getText();
+                    String password = String.valueOf(passwordField.getPassword());
+
+                    String token = loginUser(email, password);
+                    try {
+                        if (token != null) {
+                            // Decode the JWT token
+                            String userId = decodeJwtToken(token);
+
+                            // Display user information
+                            JOptionPane.showMessageDialog(null, "Login successful! User ID: " + userId, "Success",
+                                    JOptionPane.INFORMATION_MESSAGE);
+
+                            // Open the main application window here
+                            MySwing mySwing = new MySwing();
+                            mySwing.initialize();
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Login failed! Invalid credentials", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Failed to decode JWT token", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
                 } else if (choice == JOptionPane.NO_OPTION) {
                     JOptionPane.showMessageDialog(null, "You have selected not to log in!", "Result",
                             JOptionPane.WARNING_MESSAGE);
@@ -123,6 +147,7 @@ public class AuthFrame extends JFrame {
         });
 
         registerButton.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Create and display the RegisterForm
@@ -130,6 +155,7 @@ public class AuthFrame extends JFrame {
                 registerForm.initialize();
                 dispose(); // Close the current login form
             }
+
         });
 
         add(mainPanel);
@@ -144,33 +170,48 @@ public class AuthFrame extends JFrame {
         setVisible(true);
     }
 
-    private void loginUser(String name, String password) {
+    private String loginUser(String email, String password) {
         try {
-            // Create a RestTemplate
-            // RestTemplate restTemplate = new RestTemplate();
-            RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
+            // String apiUrl = "http://localhost:8080/login?UserEmail=" + email +
+            // "&UserPassword=" + password;
+            // String apiUrl =
+            // "http://localhost:8080/user/login?UserEmail=Tudor%40yahoo.com&UserPassword=18112003";
+            String apiUrl = "http://localhost:8080/user/login";
 
-            String registerEndpoint = "http://localhost:8080/user/register/";
-            User u = new User();
-            // Create an HttpEntity with the user object and headers
-            HttpEntity<User> request = new HttpEntity<>(u);
+            RestTemplate restTemplate = new RestTemplate();
+            // ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl,
+            // String.class);
 
-            // Make the HTTP POST request and get the response
-            ResponseEntity<Void> response = restTemplate.postForEntity(registerEndpoint, request, Void.class);
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl, null, null)
 
-            // Check the response status code and handle accordingly
-            if (response.getStatusCode().is2xxSuccessful()) {
-                JOptionPane.showMessageDialog(this, "Login successful!", "Success",
-                        JOptionPane.INFORMATION_MESSAGE);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                final String token = responseEntity.getBody();
+                if (token != null) {
+                    return token;
+                }
+                return null;
 
-                MySwing mySwing = new MySwing();
-                mySwing.initialize();
-                dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Login failed!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Login failed! Invalid credentials", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
             }
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
+
+    private String decodeJwtToken(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("userId").asString();
+        } catch (JWTDecodeException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
 }
