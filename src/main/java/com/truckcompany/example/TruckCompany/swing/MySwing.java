@@ -7,8 +7,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
@@ -33,6 +36,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -43,6 +47,7 @@ import com.truckcompany.example.TruckCompany.Domain.Category;
 import com.truckcompany.example.TruckCompany.Domain.Driver;
 import com.truckcompany.example.TruckCompany.Domain.Truck;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
+import com.truckcompany.example.TruckCompany.Requests.AddToCartRequest;
 import com.truckcompany.example.TruckCompany.Requests.ChangeDriverNameRequest;
 import com.truckcompany.example.TruckCompany.Requests.NewDriverRequest;
 
@@ -51,6 +56,8 @@ public class MySwing extends JFrame {
     private DefaultListModel<Truck> truckListModel = new DefaultListModel<>();
     private JList<Truck> truckList = new JList<>(truckListModel);
     private ArrayList<TruckPartInventory> basket = new ArrayList<>();
+    private JList<TruckPartInventory> cartList = new JList<>();
+
     JTextField tfFirstName;
 
     public void initialize() {
@@ -59,11 +66,11 @@ public class MySwing extends JFrame {
         lbSelectOptionsBelow.setFont(mainFont);
         lbSelectOptionsBelow.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel oneTruck = new JLabel();
-        oneTruck.setFont(mainFont);
+        JLabel error = new JLabel();
+        error.setFont(mainFont);
 
-        oneTruck.setText("");
-        oneTruck.setHorizontalAlignment(SwingConstants.LEFT);
+        error.setText("");
+        error.setHorizontalAlignment(SwingConstants.LEFT);
         tfFirstName = new JTextField();
         tfFirstName.setFont(mainFont);
 
@@ -140,19 +147,20 @@ public class MySwing extends JFrame {
 
                         allTruckFrame.add(scrollPane, BorderLayout.CENTER);
                         allTruckFrame.setSize(600, 400);
-                        allTruckFrame.setVisible(true);
+                        // allTruckFrame.setVisible(true);
 
                     } else {
-                        oneTruck.setText(
+                        error.setText(
                                 "There was an error retreiving the data, status code: " + response.getStatusCode());
                     }
                 } catch (Exception ex) {
-                    oneTruck.setText(
+                    error.setText(
                             "There was an error retreiving the data");
                 }
 
             }
         });
+
         JButton showAllDrivers = new JButton("Show All Drivers");
         showAllDrivers.setFont(mainFont);
         showAllDrivers.setPreferredSize(new Dimension(200, 20));
@@ -189,16 +197,17 @@ public class MySwing extends JFrame {
                         allDriversFrame.setVisible(true);
 
                     } else {
-                        oneTruck.setText(
+                        error.setText(
                                 "There was an error retreiving the data, status code: " + response.getStatusCode());
                     }
                 } catch (Exception ex) {
-                    oneTruck.setText(
+                    error.setText(
                             "There was an error retreiving the data");
                 }
 
             }
         });
+
         JButton createNewDriver = new JButton("Create new Driver");
         createNewDriver.setFont(mainFont);
         createNewDriver.setPreferredSize(new Dimension(200, 20));
@@ -375,6 +384,22 @@ public class MySwing extends JFrame {
             }
         });
 
+        // Create "Show Cart" button
+        JButton showCartButton = new JButton("Show Cart");
+        showCartButton.setFont(mainFont);
+        showCartButton.setPreferredSize(new Dimension(200, 20));
+        DefaultListModel<TruckPartInventory> cartListModel = new DefaultListModel<>();
+        cartList = new JList<>(cartListModel);
+
+        showCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showCartFrame(cartListModel);
+            }
+        });
+
+        // Add "Show Cart" button to your buttonsPanel
+
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(3, 1, 5, 5));
         formPanel.add(lbSelectOptionsBelow);
@@ -390,7 +415,8 @@ public class MySwing extends JFrame {
         buttonsPanel.add(showAllDrivers);
         buttonsPanel.add(createNewDriver);
         buttonsPanel.add(changeDriverNameButton);
-        buttonsPanel.add(oneTruck);
+        buttonsPanel.add(showCartButton);
+        buttonsPanel.add(error);
 
         buttonsPanel.add(truckListPanel);
         buttonsPanel.setOpaque(false);
@@ -425,10 +451,46 @@ public class MySwing extends JFrame {
         }
     }
 
+    private void showCartFrame(DefaultListModel<TruckPartInventory> cartListModel) {
+        JFrame cartFrame = new JFrame("Shopping Cart");
+        cartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        cartFrame.setSize(400, 400);
+
+        JPanel cartPanel = new JPanel(new BorderLayout());
+
+        JLabel cartLabel = new JLabel("Your Shopping Cart");
+        cartLabel.setFont(mainFont);
+        cartLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        cartPanel.add(cartLabel, BorderLayout.NORTH);
+
+        JScrollPane cartScrollPane = new JScrollPane(cartList);
+        cartPanel.add(cartScrollPane, BorderLayout.CENTER);
+
+        JButton checkoutButton = new JButton("Checkout");
+        checkoutButton.setFont(mainFont);
+        checkoutButton.setPreferredSize(new Dimension(200, 20));
+
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        cartPanel.add(checkoutButton, BorderLayout.SOUTH);
+
+        cartFrame.add(cartPanel);
+        cartFrame.setVisible(true);
+    }
+
     private void openTruckInfoDialog(Truck truck) {
         JDialog dialog = new JDialog(this, "Truck Information", true);
         dialog.setLayout(new BorderLayout());
+        int dialogX = this.getX() + this.getWidth(); // X position: Right edge of the main frame
+        int dialogY = this.getY(); // Y position: Top edge of the main frame
 
+        dialog.setLocation(dialogX, dialogY);
         JPanel infoPanel = new JPanel(new GridLayout(5, 2));
 
         addInfoRow(infoPanel, "Manufacturer:", truck.getManufacturer());
@@ -448,7 +510,7 @@ public class MySwing extends JFrame {
         searchPartsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPartsSearchFrame(truck);
+                openPartsSearchFrame(truck, dialog);
                 dialog.dispose();
             }
         });
@@ -487,10 +549,14 @@ public class MySwing extends JFrame {
 
     }
 
-    private void openPartsSearchFrame(Truck truck) {
-        JFrame partsSearchFrame = new JFrame("Search Parts for Truck");
+    private void openPartsSearchFrame(Truck truck, JDialog dialog) {
+        JFrame partsSearchFrame = new JFrame("Search Parts for Truck selected");
         partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        partsSearchFrame.setSize(600, 400);
+        partsSearchFrame.setSize(650, 400);
+        partsSearchFrame.setResizable(false);
+        int partsDialogX = dialog.getX(); // X position: Same as Truck Information dialog
+        int partsDialogY = dialog.getY() + dialog.getHeight();
+        partsSearchFrame.setLocation(partsDialogX, partsDialogY);
 
         JPanel filterPanel = new JPanel(new FlowLayout());
 
@@ -512,17 +578,16 @@ public class MySwing extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Category selectedCategory = (Category) categoryComboBox.getSelectedItem();
-                    updatePartsTable(truck, selectedCategory);
+                    updatePartsTable(truck, selectedCategory, partsSearchFrame);
                 }
             });
-
-            updatePartsTable(truck, categoryComboBox.getItemAt(0));
 
             JPanel searchPanel = new JPanel(new BorderLayout());
             searchPanel.add(filterPanel, BorderLayout.NORTH);
 
             partsSearchFrame.add(searchPanel);
             partsSearchFrame.setVisible(true);
+            updatePartsTable(truck, categoryComboBox.getItemAt(0), partsSearchFrame);
         } else {
             JOptionPane.showMessageDialog(null, "There was an unexpected error getting the categories", "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -532,7 +597,7 @@ public class MySwing extends JFrame {
     private TruckPartInventory[] parts;
 
     private TruckPartInventory[] getPartsForTruckAndCategory(Truck truck, Category category) {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
         try {
             // ResponseEntity<Driver[]> response = restTemplate.getForEntity(
             // "http://localhost:8080/api/v1.0/drivers/GetAllDrivers",
@@ -560,14 +625,26 @@ public class MySwing extends JFrame {
 
     }
 
-    private void updatePartsTable(Truck truck, Category category) {
+    private void updatePartsTable(Truck truck, Category category, JFrame partsSearchFrame) {
 
         parts = getPartsForTruckAndCategory(truck, category);
 
         if (parts != null) {
-            JFrame partsSearchFrame = new JFrame("Search Parts for Truck table");
-            partsSearchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            partsSearchFrame.setSize(600, 400);
+            JFrame partsFilteredFrame = new JFrame("Parts for this Truck and category selected");
+            partsFilteredFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            partsFilteredFrame.setSize(600, 400);
+
+            Point partsSearchFrameLocation = partsSearchFrame.getLocationOnScreen();
+            int partsFilteredFrameX = partsSearchFrameLocation.x;
+            int partsFilteredFrameY = partsSearchFrameLocation.y + partsSearchFrame.getHeight();
+            partsFilteredFrame.setLocation(partsFilteredFrameX, partsFilteredFrameY);
+
+            partsFilteredFrame.addWindowFocusListener(new WindowAdapter() {
+                @Override
+                public void windowLostFocus(WindowEvent e) {
+                    partsFilteredFrame.dispose();
+                }
+            });
 
             Object[][] t = new Object[parts.length][3];
 
@@ -584,8 +661,8 @@ public class MySwing extends JFrame {
             partsTable.getColumn("Action").setCellRenderer(new ButtonRenderer());
             partsTable.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox()));
 
-            partsSearchFrame.add(partsTable);
-            partsSearchFrame.setVisible(true);
+            partsFilteredFrame.add(partsTable);
+            partsFilteredFrame.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(null, "There was an unexpected error getting the parts", "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -595,9 +672,44 @@ public class MySwing extends JFrame {
     private void addToBasket(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < parts.length) {
             TruckPartInventory selectedPart = parts[rowIndex];
-            basket.add(selectedPart);
+            // basket.add(selectedPart);
+
+            RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
+
+            AddToCartRequest addToCartRequest = new AddToCartRequest("6543c379f8e0cb3f68a16f20", selectedPart.getId());
+
+            String addToCartUrl = "http://localhost:8080/user/AddToCart/" + "6543c379f8e0cb3f68a16f20" + '/'
+                    + selectedPart.getId(); // trebuie userID
+            System.out.println("sa vedem" + addToCartUrl);
+            try {
+                ResponseEntity<Boolean> response = restTemplate.postForEntity(addToCartUrl, null, Boolean.class);
+
+                if (response.getStatusCode() == HttpStatus.OK && response.getBody() == true) {
+                    // Item added to the cart successfully
+                    basket.add(selectedPart);
+                    JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "' to the basket.");
+                } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                    JOptionPane.showMessageDialog(this, "Failed to add item to the cart. Bad request.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else if (response.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
+                    JOptionPane.showMessageDialog(this, "Failed to add item to the cart. Internal server error.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add item to the cart.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (HttpStatusCodeException e) {
+                JOptionPane.showMessageDialog(this, "HTTP Error: " + e.getRawStatusCode(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                System.out.println("EXCEP{TION" + e);
+            } catch (RestClientException e) {
+                JOptionPane.showMessageDialog(this, "REST Client Error: " + e.getMessage(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
             // System.out.println("se adauga in cos" + selectedPart);
-            JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "' to the basket.");
+            // JOptionPane.showMessageDialog(this, "Added '" + selectedPart.getName() + "'
+            // to the basket.");
         }
     }
 
