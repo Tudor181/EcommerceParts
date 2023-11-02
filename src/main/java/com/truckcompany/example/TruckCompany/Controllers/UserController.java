@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserCartService;
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserService;
+import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
 import com.truckcompany.example.TruckCompany.Domain.User;
 import com.truckcompany.example.TruckCompany.Domain.UserCart;
 
@@ -126,6 +127,21 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(true, HttpStatus.OK);
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/GetCart/{userId}")
+    public ResponseEntity<List<TruckPartInventory>> getCart(@PathVariable String userId) {
+        try {
+            List<TruckPartInventory> userCart = this.userCartService.getCartByUserId(userId);
+            if (userCart == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(userCart, HttpStatus.OK);
         } catch (IllegalArgumentException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {

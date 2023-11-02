@@ -1,6 +1,7 @@
 package com.truckcompany.example.TruckCompany.Services;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import com.truckcompany.example.TruckCompany.DataAbstraction.ITruckPartInventory
 import com.truckcompany.example.TruckCompany.DataAbstraction.IUserCartService;
 import com.truckcompany.example.TruckCompany.Domain.Category;
 import com.truckcompany.example.TruckCompany.Domain.TruckPartInventory;
+import com.truckcompany.example.TruckCompany.Domain.User;
 import com.truckcompany.example.TruckCompany.Domain.UserCart;
 import com.truckcompany.example.TruckCompany.Repositories.ICategoryRepository;
 import com.truckcompany.example.TruckCompany.Repositories.ITruckPartinventoryRepository;
@@ -30,23 +32,43 @@ public class UserCartService implements IUserCartService{
         this.truckpartService = truckpartService;
     }
      public UserCart addItemToUserCart(String userId, String itemId) {
-        UserCart userCart = userCartRepository.findById(new ObjectId(userId)).orElseThrow(() -> new IllegalArgumentException("UserCart with id " + userId + " not found"));
-        TruckPartInventory item = truckpartService.get(itemId);
+        UserCart userCart = userCartRepository.findByUserId(userId);
+         TruckPartInventory item = truckpartService.get(itemId);
         if (item == null) {
-            throw new IllegalArgumentException("Item with id " + itemId + " not found");
+            return null;
         }
+        if(userCart == null)
+        {
+            userCart = new UserCart();
+            userCart.setUserId(userId);
+            userCart.addTruckPart(itemId);
+            userCartRepository.insert(userCart);
+        }
+        else{
+        
         userCart.addTruckPart(itemId);
         userCartRepository.save(userCart);
-        return userCart;
+        }
+        return userCart;      
     }
 
     @Override
-    public UserCart get(String id) {
-        Optional<UserCart> userCart = userCartRepository.findById(new ObjectId(id));
-        if (!userCart.isPresent()) {
-            throw new IllegalArgumentException("UserCart with id " + id + " not found");
+    public List<TruckPartInventory> getCartByUserId(String id) {
+        UserCart userCart = userCartRepository.findByUserId(id);
+        if(userCart == null)
+        {
+            return null;
         }
-        return userCart.get();
+        List<TruckPartInventory> inventory = new ArrayList<>();
+        List<String> truckPartIds = userCart.getTruckPartIds();
+        for (String truckPartId : truckPartIds) {
+            TruckPartInventory truckPart = truckpartService.get(truckPartId);
+            if (truckPart == null) {
+                return null;
+            }
+            inventory.add(truckPart);
+        }
+        return inventory;
     }
     @Override
     public Boolean insert(UserCart item) {
@@ -84,5 +106,12 @@ public class UserCartService implements IUserCartService{
     public List<UserCart> getAll() {
         return userCartRepository.findAll();
     }
+    @Override
+    public UserCart get(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    }
+   
 
+    
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.truckcompany.example.TruckCompany.Domain.Truck;
@@ -15,4 +16,7 @@ import com.truckcompany.example.TruckCompany.Domain.UserCart;
 // @Hidden
 @Repository
 public interface IUserCartRepository extends MongoRepository<UserCart, ObjectId> {
+    
+@Query("{ 'UserId' : ?0 }")
+UserCart findByUserId(String UserId);
 }
