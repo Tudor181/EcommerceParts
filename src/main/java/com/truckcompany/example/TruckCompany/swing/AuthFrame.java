@@ -27,6 +27,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.truckcompany.example.TruckCompany.Domain.User;
+import com.truckcompany.example.TruckCompany.Requests.UserLoginRequest;
 
 import javax.swing.BoxLayout;
 
@@ -178,11 +179,15 @@ public class AuthFrame extends JFrame {
             // "http://localhost:8080/user/login?UserEmail=Tudor%40yahoo.com&UserPassword=18112003";
             String apiUrl = "http://localhost:8080/user/login";
 
-            RestTemplate restTemplate = new RestTemplate();
-            // ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl,
-            // String.class);
+            RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
+            String loginEndpoint = "http://localhost:8080/user/login";
+            UserLoginRequest loginRequest = new UserLoginRequest();
+            loginRequest.setUserEmail(email);
+            loginRequest.setUserPassword(password);
 
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl, null, null)
+            // Make the HTTP POST request with the request body
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity(loginEndpoint, loginRequest,
+                    String.class);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 final String token = responseEntity.getBody();
