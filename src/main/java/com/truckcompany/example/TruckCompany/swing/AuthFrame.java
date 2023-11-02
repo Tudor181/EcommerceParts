@@ -19,14 +19,12 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.truckcompany.example.TruckCompany.Domain.User;
 import com.truckcompany.example.TruckCompany.Requests.UserLoginRequest;
 
 import javax.swing.BoxLayout;
@@ -122,7 +120,7 @@ public class AuthFrame extends JFrame {
                                     JOptionPane.INFORMATION_MESSAGE);
 
                             // Open the main application window here
-                            MySwing mySwing = new MySwing();
+                            MySwing mySwing = new MySwing(userId);
                             mySwing.initialize();
                             dispose();
                         } else {
@@ -154,7 +152,7 @@ public class AuthFrame extends JFrame {
                 // Create and display the RegisterForm
                 RegisterForm registerForm = new RegisterForm();
                 registerForm.initialize();
-                dispose(); // Close the current login form
+                // dispose(); // Close the current login form
             }
 
         });

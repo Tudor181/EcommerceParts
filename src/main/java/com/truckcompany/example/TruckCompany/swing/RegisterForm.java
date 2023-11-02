@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-
 public class RegisterForm extends JFrame {
     public void initialize() {
         JPanel mainPanel = new JPanel();
@@ -135,11 +134,11 @@ public class RegisterForm extends JFrame {
 
             // Check the response status code and handle accordingly
             if (response.getStatusCode().is2xxSuccessful()) {
-                JOptionPane.showMessageDialog(this, "Registration successful!", "Success",
+                JOptionPane.showMessageDialog(this, "Registration successful! Now please log in.", "Success",
                         JOptionPane.INFORMATION_MESSAGE);
-
-                MySwing mySwing = new MySwing();
-                mySwing.initialize();
+                response.getBody();
+                // MySwing mySwing = new MySwing();
+                // mySwing.initialize();
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Registration failed!", "Error", JOptionPane.ERROR_MESSAGE);

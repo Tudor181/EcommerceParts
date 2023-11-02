@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -58,8 +59,14 @@ public class MySwing extends JFrame {
     private JList<Truck> truckList = new JList<>(truckListModel);
     private ArrayList<TruckPartInventory> basket = new ArrayList<>();
     private JList<String> cartList = new JList<>();
+    private String userId;
 
     JTextField tfFirstName;
+
+    public MySwing(String userId) {
+        super();
+        this.userId = userId;
+    }
 
     public void initialize() {
 
@@ -394,7 +401,7 @@ public class MySwing extends JFrame {
         showCartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showCartFrame(cartListModel, "6543c379f8e0cb3f68a16f20");
+                showCartFrame(cartListModel, userId);
             }
         });
 
@@ -499,7 +506,21 @@ public class MySwing extends JFrame {
         checkoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement the checkout functionality here
+                RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
+                String deleteUrl = "http://localhost:8080/user/DeleteCart/" + userId;
+                ResponseEntity<Void> responseEntity = restTemplate.exchange(
+                        deleteUrl,
+                        HttpMethod.DELETE,
+                        null,
+                        Void.class);
+                if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                    JOptionPane.showMessageDialog(null, "Order placed successfully", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to place order", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                cartFrame.dispose();
+
             }
         });
 
@@ -701,7 +722,7 @@ public class MySwing extends JFrame {
 
             RestTemplate restTemplate = MyRestTemplate.getRestTemplate();
 
-            String addToCartUrl = "http://localhost:8080/user/AddToCart/" + "6543c379f8e0cb3f68a16f20" + '/'
+            String addToCartUrl = "http://localhost:8080/user/AddToCart/" + userId + '/'
                     + selectedPart.getId(); // trebuie userID
             System.out.println("sa vedem" + addToCartUrl);
             try {
