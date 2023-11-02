@@ -74,7 +74,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<String> generateToken(String UserEmail, String UserPassword) {
         User user = userService.getByEmail(UserEmail,UserPassword);
         if (user == null) {
