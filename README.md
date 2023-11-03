@@ -1,5 +1,7 @@
 # EcomerceParts: Truck Parts E-commerce Application
 
+## Cofariu Tudor && Fodor Robert
+
 EcomerceParts is a specialized e-commerce platform designed exclusively for truck owners, providing them with a user-friendly experience to manage their truck fleet, drivers, and order truck parts. The application is built using Java Spring Boot mostly and Java Swing that integrates with a RESTful API for seamless data exchange.
 
 # Full Stack Application
